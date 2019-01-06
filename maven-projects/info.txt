@@ -34,7 +34,18 @@
 			[INFO] Total time:  4.032 s
 			[INFO] Finished at: 2019-01-06T17:40:56+01:00
 			[INFO] ------------------------------------------------------------------------
+	- maven native cuccokhoz:
+		- https://www.humboldt.co.uk/wrapping-a-native-library-with-maven/
 	- javítottam a pom.xml-en, így már csak a openvr_api.dll kell, de az is valahogy benne van az lwjgl distro-ban, mert build-eli az lwjgl3...
 		- innen is le lehet tölteni:
 			- https://build.lwjgl.org/stable/windows/x64/openvr_api.dll
 		- sikerült a natíve részét megoldani ennek "openvr_api.dll"
+	- fejlesztés ramdisk-en
+	- G-SYNC NVidia cikk:
+		- https://www.blurbusters.com/gsync/gsync101-input-lag-tests-and-settings/14/
+		- https://ipon.hu/magazin/cikk/asus-pg278q-nvidia-g-sync-kel-a-megjelenites-jovoje
+	- újabb git repo:
+		- https://github.com/matinas/openvrsimplexamples
+			- gyönyörű kis prg tutorial-al
+			- https://skarredghost.com/2018/03/15/introduction-to-openvr-101-series-what-is-openvr-and-how-to-get-started-with-its-apis/
+		- https://github.com/matinas/openvrexamples
