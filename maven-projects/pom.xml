@@ -55,6 +55,20 @@
 			<artifactId>lwjgl</artifactId>
 			<version>${lwjgl.version}</version>
 			<classifier>natives-${platform}</classifier>
+			<scope>runtime</scope>
+		</dependency>
+		<dependency>
+			<groupId>org.lwjgl</groupId>
+			<artifactId>lwjgl-openvr</artifactId>
+			<version>${lwjgl.version}</version>
+			<classifier>natives-${platform}</classifier>
+			<scope>runtime</scope>
+		</dependency>
+		<dependency>
+			<groupId>io.github.java-graphics</groupId>
+			<artifactId>openvr</artifactId>
+			<version>1.0</version>
+			<scope>runtime</scope>
 		</dependency>
 	</dependencies>
 

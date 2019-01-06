@@ -34,3 +34,7 @@
 			[INFO] Total time:  4.032 s
 			[INFO] Finished at: 2019-01-06T17:40:56+01:00
 			[INFO] ------------------------------------------------------------------------
+	- javítottam a pom.xml-en, így már csak a openvr_api.dll kell, de az is valahogy benne van az lwjgl distro-ban, mert build-eli az lwjgl3...
+		- innen is le lehet tölteni:
+			- https://build.lwjgl.org/stable/windows/x64/openvr_api.dll
+		- sikerült a natíve részét megoldani ennek "openvr_api.dll"
