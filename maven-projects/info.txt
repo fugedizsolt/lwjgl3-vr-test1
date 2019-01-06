@@ -1,0 +1,36 @@
+20190106:
+	- a pom.xml-t ebből szedtem:
+		- https://github.com/LWJGL/lwjgl3-demos/blob/master/pom.xml
+	- sikerült lefordítani és elindítani a prg-t a maven-projects dir alól
+		- mvn dependency:copy-dependencies
+		- mvn exec:java -Dexec.mainClass="test.HelloOpenVR"
+		- csak úgy indult el, hogy 
+			- az openvr GitHub projekt alól idemásoltam a 64 bites dll-t:
+				- GitHub\openvr\bin\win64\openvr_api.dll
+			- innen letöltöttem a dll-t
+				https://build.lwjgl.org/stable/windows/x64/lwjgl_openvr.dll
+	- futtatás:
+		- összedugtam a kütyüt, de a steamvr nem futott, kontrollerek nem voltak beizzítva
+		- felvillant egy ablak, de rögtön el is tűnt
+		- output
+			D:\w0rk\GitHub\lwjgl3-vr-test1\maven-projects>mvn exec:java -Dexec.mainClass="test.HelloOpenVR"
+			[INFO] Scanning for projects...
+			[INFO]
+			[INFO] ------------------------< test:lwjgl3-vr-test1 >------------------------
+			[INFO] Building lwjgl3-vr-test1 1.0
+			[INFO] --------------------------------[ jar ]---------------------------------
+			[INFO]
+			[INFO] --- exec-maven-plugin:1.6.0:java (default-cli) @ lwjgl3-vr-test1 ---
+			VR_IsRuntimeInstalled() = true
+			VR_RuntimePath() = D:\Games\Steam\steamapps\common\SteamVR\
+			VR_IsHmdPresent() = true
+			Model Number : VIVE_Pro MV
+			Serial Number: LHR-7EC6B64C
+			Recommended width : 2518
+			Recommended height: 2798
+			[INFO] ------------------------------------------------------------------------
+			[INFO] BUILD SUCCESS
+			[INFO] ------------------------------------------------------------------------
+			[INFO] Total time:  4.032 s
+			[INFO] Finished at: 2019-01-06T17:40:56+01:00
+			[INFO] ------------------------------------------------------------------------

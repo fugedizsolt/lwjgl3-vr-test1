@@ -1,0 +1,126 @@
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+	<modelVersion>4.0.0</modelVersion>
+	<groupId>test</groupId>
+	<artifactId>lwjgl3-vr-test1</artifactId>
+	<version>1.0</version>
+	<packaging>jar</packaging>
+	<name>lwjgl3-vr-test1</name>
+
+	<properties>
+		<project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
+		<java-version>1.8</java-version>
+		<compiler-plugin-version>3.8.0</compiler-plugin-version>
+		<jar-plugin-version>3.1.0</jar-plugin-version>
+		<lwjgl.version>3.2.1</lwjgl.version>
+	</properties>
+
+	<scm>
+		<connection>scm:git:https://github.com/fugedizsolt/lwjgl3-vr-test1.git</connection>
+		<url>scm:git:https://github.com/fugedizsolt/lwjgl3-vr-test1.git</url>
+		<tag>HEAD</tag>
+	</scm>
+
+	<profiles>
+		<profile>
+			<id>windows</id>
+			<activation>
+				<os>
+					<family>Windows</family>
+				</os>
+			</activation>
+			<properties>
+				<platform>windows</platform>
+			</properties>
+		</profile>
+	</profiles>
+
+	<dependencies>
+		<dependency>
+			<groupId>log4j</groupId>
+			<artifactId>log4j</artifactId>
+			<version>1.2.17</version>
+		</dependency>
+		<dependency>
+			<groupId>org.lwjgl</groupId>
+			<artifactId>lwjgl</artifactId>
+			<version>${lwjgl.version}</version>
+		</dependency>
+		<dependency>
+			<groupId>org.lwjgl</groupId>
+			<artifactId>lwjgl-openvr</artifactId>
+			<version>${lwjgl.version}</version>
+		</dependency>
+		<dependency>
+			<groupId>org.lwjgl</groupId>
+			<artifactId>lwjgl</artifactId>
+			<version>${lwjgl.version}</version>
+			<classifier>natives-${platform}</classifier>
+		</dependency>
+	</dependencies>
+
+	<build>
+		<plugins>
+			<plugin>
+				<groupId>org.apache.maven.plugins</groupId>
+				<artifactId>maven-compiler-plugin</artifactId>
+				<version>${compiler-plugin-version}</version>
+				<configuration>
+					<source>${java-version}</source>
+					<target>${java-version}</target>
+					<encoding>${project.build.sourceEncoding}</encoding>
+				</configuration>
+			</plugin>
+			<plugin>
+				<groupId>org.codehaus.mojo</groupId>
+				<artifactId>buildnumber-maven-plugin</artifactId>
+				<version>1.4</version>
+				<executions>
+					<execution>
+						<phase>generate-resources</phase>
+						<goals>
+							<goal>create</goal>
+						</goals>
+					</execution>
+				</executions>
+				<configuration>
+					<timestampFormat>{0,date,yyyy.MM.dd HH:mm:ss}</timestampFormat>
+					<!-- doCheck and doUpdate actually talk to repository if it's true, 
+						Check would check that there are no local changes. Update would update it -->
+					<docheck>false</docheck>
+					<doupdate>false</doupdate>
+					<revisiononscmfailure>
+						<!-- Generate sequence build number based on: build number and timestamp -->
+						<format>Build: #{0} ({1,date})</format>
+						<items>
+							<item>buildNumber\d*</item>
+							<item>timestamp</item>
+						</items>
+					</revisiononscmfailure>
+				</configuration>
+			</plugin>
+			<plugin>
+				<groupId>org.apache.maven.plugins</groupId>
+				<artifactId>maven-jar-plugin</artifactId>
+				<version>${jar-plugin-version}</version>
+				<configuration>
+					<archive>
+						<addMavenDescriptor>false</addMavenDescriptor>
+						<manifest>
+							<addClasspath>true</addClasspath>
+							<classpathPrefix>lib/</classpathPrefix>
+							<mainClass>test.HelloOpenVR</mainClass>
+						</manifest>
+						<manifestEntries>
+							<Built-By>${user.name}</Built-By>
+							<Implementation-Title>spadmin</Implementation-Title>
+							<Implementation-Version>${project.version} ${buildNumber}</Implementation-Version>
+							<Implementation-Build>${buildNumber}</Implementation-Build>
+							<Build-Time>${timestamp}</Build-Time>
+						</manifestEntries>
+					</archive>
+				</configuration>
+			</plugin>
+		</plugins>
+	</build>
+
+</project>
