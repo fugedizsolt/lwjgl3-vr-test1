@@ -49,3 +49,38 @@
 			- gyönyörű kis prg tutorial-al
 			- https://skarredghost.com/2018/03/15/introduction-to-openvr-101-series-what-is-openvr-and-how-to-get-started-with-its-apis/
 		- https://github.com/matinas/openvrexamples
+
+20190108:
+	- ha nem indítom el a steamvr-t, akkor megpróbálja elindítani a rendszer, de akkor nem jelzi még ki az eszközöket
+	- ha elindítom a steamvr-t, és futnak az eszközök, és utána indítom el a prg-t, akkor ezt írja ki
+		- ezek az infók jönnek 1 controller bekapcsolásakor
+			VR_IsRuntimeInstalled() = true
+			VR_RuntimePath() = D:\Games\Steam\steamapps\common\SteamVR\
+			VR_IsHmdPresent() = true
+			token=1
+			Model Number : VIVE_Pro MV
+			Serial Number: LHR-7EC6B64C
+			id=0,trackedDeviceClass=1
+			TrackingSystemName: lighthouse
+			ModeLabel:
+			ModelNumber: VIVE_Pro MV
+			id=1,trackedDeviceClass=4
+			TrackingSystemName: lighthouse
+			ModeLabel: 1
+			ModelNumber: Valve SR
+			id=2,trackedDeviceClass=4
+			TrackingSystemName: lighthouse
+			ModeLabel: 2
+			ModelNumber: Valve SR
+			id=3,trackedDeviceClass=2
+			TrackingSystemName: lighthouse
+			ModeLabel:
+			ModelNumber: VIVE Controller Pro MV
+			countBaseStations=2
+			Recommended width : 2518
+			Recommended height: 2798
+			calling VR_ShutdownInternal...
+			VR_ShutdownInternal...end
+	- találtam lwjgl3 vr kódot:
+		- https://github.com/justinmarentette11/Tower-Defense-Galaxy/tree/master/desktop/src/com/badlogic/gdx/vr
+		- https://github.com/libgdx/libgdx

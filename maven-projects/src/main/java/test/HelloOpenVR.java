@@ -1,62 +1,35 @@
-/*
- * Copyright LWJGL. All rights reserved.
- * License terms: https://www.lwjgl.org/license
- */
 package test;
 
-import org.lwjgl.openvr.*;
-import org.lwjgl.system.*;
-
-import java.nio.*;
-
-import static org.lwjgl.openvr.VR.*;
-import static org.lwjgl.openvr.VRSystem.*;
-import static org.lwjgl.system.MemoryStack.*;
+import java.nio.file.Files;
+import java.nio.file.Path;
+import java.nio.file.Paths;
 
 public class HelloOpenVR
 {
-
-	private HelloOpenVR()
+	public static void main( String[] args ) throws Exception
 	{
+		new HelloOpenVR();
 	}
 
-	public static void main( String[] args )
+	private HelloOpenVR() throws Exception
 	{
-		System.err.println( "VR_IsRuntimeInstalled() = " + VR_IsRuntimeInstalled() );
-		System.err.println( "VR_RuntimePath() = " + VR_RuntimePath() );
-		System.err.println( "VR_IsHmdPresent() = " + VR_IsHmdPresent() );
-
-		try (MemoryStack stack = stackPush())
+		try ( ManagerOpenVR movr = new ManagerOpenVR() )
 		{
-			IntBuffer peError = stack.mallocInt( 1 );
+			movr.listDevices();
 
-			int token = VR_InitInternal( peError,0 );
-			if ( peError.get( 0 ) == 0 )
+			Path pathStop = Paths.get( "stop.dat" );
+			while ( true )
 			{
-				try
-				{
-					OpenVR.create( token );
+				if ( Files.exists( pathStop )==true )
+					break;
 
-					System.err.println( "Model Number : " + VRSystem_GetStringTrackedDeviceProperty( k_unTrackedDeviceIndex_Hmd,ETrackedDeviceProperty_Prop_ModelNumber_String,peError ) );
-					System.err.println( "Serial Number: " + VRSystem_GetStringTrackedDeviceProperty( k_unTrackedDeviceIndex_Hmd,ETrackedDeviceProperty_Prop_SerialNumber_String,peError ) );
-
-					IntBuffer w = stack.mallocInt( 1 );
-					IntBuffer h = stack.mallocInt( 1 );
-					VRSystem_GetRecommendedRenderTargetSize( w,h );
-					System.err.println( "Recommended width : " + w.get( 0 ) );
-					System.err.println( "Recommended height: " + h.get( 0 ) );
-				}
-				finally
-				{
-					VR_ShutdownInternal();
-				}
-			}
-			else
-			{
-				System.out.println( "INIT ERROR SYMBOL: " + VR_GetVRInitErrorAsSymbol( peError.get( 0 ) ) );
-				System.out.println( "INIT ERROR  DESCR: " + VR_GetVRInitErrorAsEnglishDescription( peError.get( 0 ) ) );
+				movr.pollEvents();
 			}
 		}
 	}
 
+	public static void log( String msg )
+	{
+		System.out.println( msg );
+	}
 }
