@@ -8,10 +8,20 @@ import org.lwjgl.openvr.VREvent;
 import org.lwjgl.openvr.VRSystem;
 import org.lwjgl.system.MemoryStack;
 
+import com.badlogic.gdx.math.Matrix4;
+import com.badlogic.gdx.math.Vector3;
+
 public class ManagerOpenVR implements AutoCloseable
 {
 	private final MemoryStack stack;
 	private final int openVRtoken;
+	private final VREvent event;
+	private final VRDevicePose[] devicePoses;
+	private final VRDevice[] devices;
+
+	// offsets for translation and rotation from tracker to world space
+	private final Vector3 trackerSpaceOriginToWorldSpaceTranslationOffset = new Vector3();
+	private final Matrix4 trackerSpaceToWorldspaceRotationOffset = new Matrix4();
 
 
 	public ManagerOpenVR()
@@ -19,7 +29,11 @@ public class ManagerOpenVR implements AutoCloseable
 		this.stack = MemoryStack.stackPush();
 		try
 		{
-			this.openVRtoken = initToken();
+			this.event = VREvent.create();
+			this.devicePoses = new VRDevicePose[VR.k_unMaxTrackedDeviceCount];
+			this.devices = new VRDevice[VR.k_unMaxTrackedDeviceCount];
+
+			this.openVRtoken = createOpenVR();
 		}
 		catch ( Exception exc )
 		{
@@ -28,7 +42,7 @@ public class ManagerOpenVR implements AutoCloseable
 		}
 	}
 
-	private int initToken()
+	private int createOpenVR()
 	{
 		HelloOpenVR.log( "VR_IsRuntimeInstalled() = " + VR.VR_IsRuntimeInstalled() );
 		HelloOpenVR.log( "VR_RuntimePath() = " + VR.VR_RuntimePath() );
@@ -81,6 +95,9 @@ public class ManagerOpenVR implements AutoCloseable
 
 				if ( trackedDeviceClass==VR.ETrackedDeviceClass_TrackedDeviceClass_TrackingReference )
 					countBaseStations++;
+
+				devicePoses[ic] = new VRDevicePose( ic );
+				createDevice( ic );
 			}
 		}
 		HelloOpenVR.log( String.format( "countBaseStations=%d",countBaseStations ) );
@@ -92,10 +109,50 @@ public class ManagerOpenVR implements AutoCloseable
 		HelloOpenVR.log( "Recommended height: " + h.get( 0 ) );
 	}
 
+	private void createDevice( int index )
+	{
+		VRDeviceType type = null;
+		int deviceClass = VRSystem.VRSystem_GetTrackedDeviceClass( index );
+		switch ( deviceClass )
+		{
+		case VR.ETrackedDeviceClass_TrackedDeviceClass_HMD:
+			type = VRDeviceType.HeadMountedDisplay;
+			break;
+		case VR.ETrackedDeviceClass_TrackedDeviceClass_Controller:
+			type = VRDeviceType.Controller;
+			break;
+		case VR.ETrackedDeviceClass_TrackedDeviceClass_TrackingReference:
+			type = VRDeviceType.BaseStation;
+			break;
+		case VR.ETrackedDeviceClass_TrackedDeviceClass_GenericTracker:
+			type = VRDeviceType.Generic;
+			break;
+		default:
+			return;
+		}
+
+		VRControllerRole role = VRControllerRole.Unknown;
+		if ( type == VRDeviceType.Controller )
+		{
+			int r = VRSystem.VRSystem_GetControllerRoleForTrackedDeviceIndex( index );
+			switch ( r )
+			{
+			case VR.ETrackedControllerRole_TrackedControllerRole_LeftHand:
+				role = VRControllerRole.LeftHand;
+				break;
+			case VR.ETrackedControllerRole_TrackedControllerRole_RightHand:
+				role = VRControllerRole.RightHand;
+				break;
+			}
+		}
+
+		devices[index] = new VRDevice( devicePoses[index],type,role,trackerSpaceOriginToWorldSpaceTranslationOffset,trackerSpaceToWorldspaceRotationOffset );
+		devices[index].updateAxesAndPosition();
+	}
+
 	public void pollEvents()
 	{
-		VREvent pEvent;
-		VRSystem.VRSystem_PollNextEvent( pEvent );
+		boolean bHasNext = VRSystem.VRSystem_PollNextEvent( this.event );
 	}
 
 	@Override
@@ -124,5 +181,14 @@ public class ManagerOpenVR implements AutoCloseable
 	public int getOpenVRtoken()
 	{
 		return openVRtoken;
+	}
+
+	public VRDevice getDeviceByType( VRDeviceType type )
+	{
+		for ( VRDevice dev : devices )
+		{
+			if ( dev!=null && dev.getType()==type ) return dev;
+		}
+		return null;
 	}
 }

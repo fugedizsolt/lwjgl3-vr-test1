@@ -81,6 +81,7 @@
 			Recommended height: 2798
 			calling VR_ShutdownInternal...
 			VR_ShutdownInternal...end
+	- 2518/2798 kb = 1440/1600
 	- találtam lwjgl3 vr kódot:
 		- https://github.com/justinmarentette11/Tower-Defense-Galaxy/tree/master/desktop/src/com/badlogic/gdx/vr
 		- https://github.com/libgdx/libgdx
