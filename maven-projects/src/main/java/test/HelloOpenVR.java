@@ -21,7 +21,10 @@ public class HelloOpenVR
 			while ( true )
 			{
 				if ( Files.exists( pathStop )==true )
+				{
+					Files.delete( pathStop );
 					break;
+				}
 
 				movr.pollEvents();
 			}
