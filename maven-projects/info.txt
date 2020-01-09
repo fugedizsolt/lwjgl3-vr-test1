@@ -85,3 +85,16 @@
 	- találtam lwjgl3 vr kódot:
 		- https://github.com/justinmarentette11/Tower-Defense-Galaxy/tree/master/desktop/src/com/badlogic/gdx/vr
 		- https://github.com/libgdx/libgdx
+
+20200109:
+	- úgy látom az lwjgl3 openvr része egy nagyon egyszerű linkelés az openvr api-ra
+		- emiatt azt gondoltam, hogy a c++-os API tutorialt átalakítom java lwjgl3-as verzióra
+		- találtam 2 tutorialt
+			- az openvr API tartalmaz egy sample app-ot, amelyben sok egymástól adott távolságra levő kocka közt nézelődhetek
+			- https://gitlab.com/stevenSchuerstedt/openvr-tutorial
+				- ez jobbnak tűnik...
+	- bonyi rész az openvr API-ban a "Action Manifest files", erről egy leírás...
+		- https://github.com/ValveSoftware/openvr/wiki/Action-manifest
+
+
+x
