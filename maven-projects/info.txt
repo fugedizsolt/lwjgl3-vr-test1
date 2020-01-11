@@ -96,5 +96,15 @@
 	- bonyi rész az openvr API-ban a "Action Manifest files", erről egy leírás...
 		- https://github.com/ValveSoftware/openvr/wiki/Action-manifest
 
+20200111:
+	- találtam egy jó kis videót: (youtube keresés: unity steamvr plugin tutorial)
+		- [Unity] SteamVR 2.0 Input using Actions
+			- https://www.youtube.com/watch?v=bn8eMxBcI70
+		- nagyon jól elmagyarázza mit kell csinálni
+		- megnéztem a "Windows/SteamVR Input Live View" menüben, hogy a kontroller a szemüveghez képest mutatja a "pose" értékeket
+			- van benne 3 float érték (x,y,z) a kontoller szemüveghez viszonyított pozíciójára
+			- van benne 4 float érték (quaternion szerintem) a kontoller irányára
+		- ebből már el tudok indulni
+
 
 x
