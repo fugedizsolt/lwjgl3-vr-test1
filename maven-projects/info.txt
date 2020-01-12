@@ -106,5 +106,10 @@
 			- van benne 4 float érték (quaternion szerintem) a kontoller irányára
 		- ebből már el tudok indulni
 
+20200112:
+	- Visual Studio format code shortcut:
+		- https://stackoverflow.com/questions/5755942/how-do-you-auto-format-code-in-visual-studio
+		- Tools -> options -> Environment -> keyboard, itt "Edit.formatselection"
+
 
 x
