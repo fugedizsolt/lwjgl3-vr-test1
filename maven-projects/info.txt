@@ -110,6 +110,11 @@
 	- Visual Studio format code shortcut:
 		- https://stackoverflow.com/questions/5755942/how-do-you-auto-format-code-in-visual-studio
 		- Tools -> options -> Environment -> keyboard, itt "Edit.formatselection"
-
+	- Valami elképesztő jó demo-t sikerült letölteni:
+		- futtatható verzió:
+			- https://hunter-bobeck.itch.io/the-moon-motion-zone
+			- 150 MB-os Unity runtime csomag: Build.exe-vel indítható, és gyönyörű prg!
+		- Git verzió, sajnos nem tudom lefordítani...
+			- 
 
 x
