@@ -85,3 +85,36 @@
 	- találtam lwjgl3 vr kódot:
 		- https://github.com/justinmarentette11/Tower-Defense-Galaxy/tree/master/desktop/src/com/badlogic/gdx/vr
 		- https://github.com/libgdx/libgdx
+
+20200109:
+	- úgy látom az lwjgl3 openvr része egy nagyon egyszerű linkelés az openvr api-ra
+		- emiatt azt gondoltam, hogy a c++-os API tutorialt átalakítom java lwjgl3-as verzióra
+		- találtam 2 tutorialt
+			- az openvr API tartalmaz egy sample app-ot, amelyben sok egymástól adott távolságra levő kocka közt nézelődhetek
+			- https://gitlab.com/stevenSchuerstedt/openvr-tutorial
+				- ez jobbnak tűnik...
+	- bonyi rész az openvr API-ban a "Action Manifest files", erről egy leírás...
+		- https://github.com/ValveSoftware/openvr/wiki/Action-manifest
+
+20200111:
+	- találtam egy jó kis videót: (youtube keresés: unity steamvr plugin tutorial)
+		- [Unity] SteamVR 2.0 Input using Actions
+			- https://www.youtube.com/watch?v=bn8eMxBcI70
+		- nagyon jól elmagyarázza mit kell csinálni
+		- megnéztem a "Windows/SteamVR Input Live View" menüben, hogy a kontroller a szemüveghez képest mutatja a "pose" értékeket
+			- van benne 3 float érték (x,y,z) a kontoller szemüveghez viszonyított pozíciójára
+			- van benne 4 float érték (quaternion szerintem) a kontoller irányára
+		- ebből már el tudok indulni
+
+20200112:
+	- Visual Studio format code shortcut:
+		- https://stackoverflow.com/questions/5755942/how-do-you-auto-format-code-in-visual-studio
+		- Tools -> options -> Environment -> keyboard, itt "Edit.formatselection"
+	- Valami elképesztő jó demo-t sikerült letölteni:
+		- futtatható verzió:
+			- https://hunter-bobeck.itch.io/the-moon-motion-zone
+			- 150 MB-os Unity runtime csomag: Build.exe-vel indítható, és gyönyörű prg!
+		- Git verzió, sajnos nem tudom lefordítani...
+
+
+x
