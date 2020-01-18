@@ -1,5 +1,7 @@
 package test;
 
+import com.badlogic.gdx.math.Matrix4;
+
 /**
  * Space in which matrices and vectors are returned in by
  * {@link VRDevice} methods taking a {@link Space}.
