@@ -10,7 +10,7 @@
 		<project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
 		<maven.compiler.source>1.8</maven.compiler.source>
 		<maven.compiler.target>1.8</maven.compiler.target>
-		<jar-plugin-version>3.2.0</jar-plugin-version>
+		<jar-plugin-version>3.1.1</jar-plugin-version>	<!-- max 3.1.1 lehet, különben eclipse bug jelzés jön-->
 		<log4j.version>1.2.17</log4j.version>
 		<lwjgl.version>3.2.3</lwjgl.version>
 		<libgdx.version>1.9.10</libgdx.version>
@@ -71,12 +71,14 @@
 			<classifier>natives-${platform}</classifier>
 			<scope>runtime</scope>
 		</dependency>
+<!--
 		<dependency>
 			<groupId>io.github.java-graphics</groupId>
 			<artifactId>openvr</artifactId>
 			<version>1.0</version>
 			<scope>runtime</scope>
 		</dependency>
+-->
 	</dependencies>
 
 	<build>

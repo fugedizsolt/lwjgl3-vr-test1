@@ -1,4 +1,4 @@
-﻿//package test;
+//package test;
 //
 //import static org.lwjgl.openvr.VR.VR_ShutdownInternal;
 //
