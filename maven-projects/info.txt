@@ -116,5 +116,19 @@
 			- 150 MB-os Unity runtime csomag: Build.exe-vel indítható, és gyönyörű prg!
 		- Git verzió, sajnos nem tudom lefordítani...
 
+20200201:
+	- találtam lwjgl tutorial-t:
+		- https://github.com/lwjglgamedev/lwjglbook.git
+		- ebben az első FBO teszt:
+			- lwjglbook\chapter18\c18-p1\
+			- csak úgy fordult nálam, hogy a pom-xml-ben kicseréltem a java verziót 11->8 -ra (151-sor):
+				<java.version>8</java.version>
+			- fordult és futott is, de túl bonyi a kód... sok a körítés
+	- kiindulok a chapter01 kódból és megpróbálom megcsinálni a gyönyörű opengl tutorial-os FBO kódot:
+		- https://github.com/JoeyDeVries/LearnOpenGL.git
+			- ebben ez a szép kód van:
+				- LearnOpenGL\src\4.advanced_opengl\5.1.framebuffers\framebuffers.cpp
+
+
 
 x
