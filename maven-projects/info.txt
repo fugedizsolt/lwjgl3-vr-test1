@@ -124,10 +124,13 @@
 			- csak úgy fordult nálam, hogy a pom-xml-ben kicseréltem a java verziót 11->8 -ra (151-sor):
 				<java.version>8</java.version>
 			- fordult és futott is, de túl bonyi a kód... sok a körítés
+			- mvn exec:java -Dexec.mainClass="org.lwjglb.game.Main"
 	- kiindulok a chapter01 kódból és megpróbálom megcsinálni a gyönyörű opengl tutorial-os FBO kódot:
 		- https://github.com/JoeyDeVries/LearnOpenGL.git
 			- ebben ez a szép kód van:
 				- LearnOpenGL\src\4.advanced_opengl\5.1.framebuffers\framebuffers.cpp
+	- kész a test.gl01 prg minimal lwjgl3-as prg
+	- kész a test.gl02 prg minimal lwjgl3-as prg shader-ekkel render class-al kiegészítve
 
 
 

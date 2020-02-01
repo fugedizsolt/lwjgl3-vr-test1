@@ -1,4 +1,4 @@
-package testfbo;
+package test.gl02;
 
 /*
  * ez a jó static import rész
@@ -31,12 +31,17 @@ import static org.lwjgl.system.MemoryStack.*;
 import static org.lwjgl.system.MemoryUtil.*;
 */
 
-public class MainMinimal
+public class Main
 {
 	private static final int WIDTH = 300;
 	private static final int HEIGHT = 300;
 
-	public void run()
+
+	public Main()
+	{
+	}
+
+	public void run() throws Exception
 	{
 		System.out.println( "Hello LWJGL " + Version.getVersion() + "!" );
 
@@ -45,8 +50,16 @@ public class MainMinimal
 			// The window handle
 			long windowHandle = init_GLFW();
 			init_OpenGL();
-
-			loop( windowHandle );
+			Renderer renderer = new Renderer();
+			try
+			{
+				renderer.init();
+				loop( windowHandle,renderer );
+			}
+			finally
+			{
+				renderer.cleanup();
+			}
 
 			// Release window and window callbacks
 			glfwFreeCallbacks( windowHandle );
@@ -125,15 +138,17 @@ public class MainMinimal
 
 		// Set the clear color
 		glClearColor( 1.0f,0.0f,0.0f,0.0f );
+
+		glViewport( 0,0,Main.WIDTH,Main.HEIGHT );
 	}
 
-	private void loop( long windowHandle )
+	private void loop( long windowHandle,Renderer renderer )
 	{
 		// Run the rendering loop until the user has attempted to close
 		// the window or has pressed the ESCAPE key.
 		while ( !glfwWindowShouldClose( windowHandle ) )
 		{
-			glClear( GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT ); // clear the framebuffer
+			renderer.render();
 
 			glfwSwapBuffers( windowHandle ); // swap the color buffers
 
@@ -143,8 +158,8 @@ public class MainMinimal
 		}
 	}
 
-	public static void main( String[] args )
+	public static void main( String[] args ) throws Exception
 	{
-		new MainMinimal().run();
+		new Main().run();
 	}
 }
