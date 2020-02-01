@@ -131,7 +131,16 @@
 				- LearnOpenGL\src\4.advanced_opengl\5.1.framebuffers\framebuffers.cpp
 	- kész a test.gl01 prg minimal lwjgl3-as prg
 	- kész a test.gl02 prg minimal lwjgl3-as prg shader-ekkel render class-al kiegészítve
-
+		- ez lényegében ugyanaz, mint a LearnOpenGL\src\1.getting_started\2.1.hello_triangle
+			- csak sokkal szebb :)
+	- most már bizakodó vagyok...
+		- ezen kódok alapján meg tudom csinálni a framebuffer-eket használó sima lwjgl-es prg-t, aztán meg már csak vr-os kódot kell csinálni belőle...
+	-  a további lépések:
+		- egy camera class kell, hogy a perspektívát lássam hogyan kell megalkotni
+		- egy időzítés kell, hogy lássak kis mozgást
+		- fbo készítés
+		- 2 fbo készítés egyszerre kirakni a window-ba
+		- ezután már csak párosítani kell a standard openvr-es cpp kódot és a java kódot... jaj de izgi
 
 
 x
