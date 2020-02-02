@@ -116,5 +116,38 @@
 			- 150 MB-os Unity runtime csomag: Build.exe-vel indítható, és gyönyörű prg!
 		- Git verzió, sajnos nem tudom lefordítani...
 
+20200201:
+	- találtam lwjgl tutorial-t:
+		- https://github.com/lwjglgamedev/lwjglbook.git
+		- ebben az első FBO teszt:
+			- lwjglbook\chapter18\c18-p1\
+			- csak úgy fordult nálam, hogy a pom-xml-ben kicseréltem a java verziót 11->8 -ra (151-sor):
+				<java.version>8</java.version>
+			- fordult és futott is, de túl bonyi a kód... sok a körítés
+			- mvn exec:java -Dexec.mainClass="org.lwjglb.game.Main"
+	- kiindulok a chapter01 kódból és megpróbálom megcsinálni a gyönyörű opengl tutorial-os FBO kódot:
+		- https://github.com/JoeyDeVries/LearnOpenGL.git
+			- ebben ez a szép kód van:
+				- LearnOpenGL\src\4.advanced_opengl\5.1.framebuffers\framebuffers.cpp
+	- kész a test.gl01 prg minimal lwjgl3-as prg
+	- kész a test.gl02 prg minimal lwjgl3-as prg shader-ekkel render class-al kiegészítve
+		- ez lényegében ugyanaz, mint a LearnOpenGL\src\1.getting_started\2.1.hello_triangle
+			- csak sokkal szebb :)
+	- most már bizakodó vagyok...
+		- ezen kódok alapján meg tudom csinálni a framebuffer-eket használó sima lwjgl-es prg-t, aztán meg már csak vr-os kódot kell csinálni belőle...
+	-  a további lépések:
+		- egy camera class kell, hogy a perspektívát lássam hogyan kell megalkotni
+		- egy időzítés kell, hogy lássak kis mozgást
+		- fbo készítés
+		- 2 fbo készítés egyszerre kirakni a window-ba
+		- ezután már csak párosítani kell a standard openvr-es cpp kódot és a java kódot... jaj de izgi
+
+20200202:
+	- el vagyok keseredve, a math lib-ek nagyon komplex-ek..., nem tudtam haladni a kamera kezeléssel... quat rémálom...
+		- java glm:
+			- https://github.com/java-graphics/glm.git
+		- JOML:
+			- https://github.com/JOML-CI/JOML.git
+		- sajat quat (jogl-ból)
 
 x

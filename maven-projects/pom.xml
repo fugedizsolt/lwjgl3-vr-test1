@@ -13,6 +13,7 @@
 		<jar-plugin-version>3.1.1</jar-plugin-version>	<!-- max 3.1.1 lehet, különben eclipse bug jelzés jön-->
 		<log4j.version>2.13.0</log4j.version>
 		<lwjgl.version>3.2.3</lwjgl.version>
+		<joml.version>1.9.20</joml.version>
 		<libgdx.version>1.9.10</libgdx.version>
 	</properties>
 
@@ -43,11 +44,22 @@
 			<artifactId>log4j-api</artifactId>
 			<version>${log4j.version}</version>
 		</dependency>
+		<dependency>
+			<groupId>com.badlogicgames.gdx</groupId>
+			<artifactId>gdx</artifactId>
+			<version>${libgdx.version}</version>
+		</dependency>
 -->
+
 		<dependency>
 			<groupId>org.apache.logging.log4j</groupId>
 			<artifactId>log4j-core</artifactId>
 			<version>${log4j.version}</version>
+		</dependency>
+		<dependency>
+			<groupId>org.joml</groupId>
+			<artifactId>joml</artifactId>
+			<version>${joml.version}</version>
 		</dependency>
 		<dependency>
 			<groupId>org.lwjgl</groupId>
@@ -56,13 +68,18 @@
 		</dependency>
 		<dependency>
 			<groupId>org.lwjgl</groupId>
+			<artifactId>lwjgl-opengl</artifactId>
+			<version>${lwjgl.version}</version>
+		</dependency>
+		<dependency>
+			<groupId>org.lwjgl</groupId>
 			<artifactId>lwjgl-openvr</artifactId>
 			<version>${lwjgl.version}</version>
 		</dependency>
 		<dependency>
-			<groupId>com.badlogicgames.gdx</groupId>
-			<artifactId>gdx</artifactId>
-			<version>${libgdx.version}</version>
+			<groupId>org.lwjgl</groupId>
+			<artifactId>lwjgl-glfw</artifactId>
+			<version>${lwjgl.version}</version>
 		</dependency>
 		<dependency>
 			<groupId>org.lwjgl</groupId>
