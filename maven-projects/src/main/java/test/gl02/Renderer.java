@@ -2,78 +2,56 @@ package test.gl02;
 
 import static org.lwjgl.opengl.GL11.GL_COLOR_BUFFER_BIT;
 import static org.lwjgl.opengl.GL11.GL_DEPTH_BUFFER_BIT;
-import static org.lwjgl.opengl.GL11.GL_FLOAT;
 import static org.lwjgl.opengl.GL11.GL_TRIANGLES;
+import static org.lwjgl.opengl.GL11.GL_UNSIGNED_INT;
 import static org.lwjgl.opengl.GL11.glClear;
-import static org.lwjgl.opengl.GL11.glDrawArrays;
-import static org.lwjgl.opengl.GL15.GL_ARRAY_BUFFER;
-import static org.lwjgl.opengl.GL15.GL_STATIC_DRAW;
-import static org.lwjgl.opengl.GL15.glBindBuffer;
-import static org.lwjgl.opengl.GL15.glBufferData;
-import static org.lwjgl.opengl.GL15.glDeleteBuffers;
-import static org.lwjgl.opengl.GL15.glGenBuffers;
-import static org.lwjgl.opengl.GL20.glDisableVertexAttribArray;
-import static org.lwjgl.opengl.GL20.glEnableVertexAttribArray;
-import static org.lwjgl.opengl.GL20.glVertexAttribPointer;
+import static org.lwjgl.opengl.GL11.glDrawElements;
 import static org.lwjgl.opengl.GL30.glBindVertexArray;
-import static org.lwjgl.opengl.GL30.glDeleteVertexArrays;
-import static org.lwjgl.opengl.GL30.glGenVertexArrays;
 
-import java.nio.FloatBuffer;
-
-import org.lwjgl.system.MemoryUtil;
+import org.joml.Matrix4f;
 
 public class Renderer
 {
-	private int vboId;
-	private int vaoId;
-	private ShaderProgram shaderProgram;
+	private static final String VERTEX_SHADER_PARAM_TRANSFORM = "transform";
+	private static final float FOV = (float) Math.toRadians(60.0f);
+	private static final float Z_NEAR = 0.01f;
+	private static final float Z_FAR = 1000.f;
+	private Matrix4f projectionMatrix;
+
+	private ShaderProgram shaderProgram = null;
+	private Mesh mesh = null;
+
 
 	public Renderer()
 	{
 	}
 
-	public void init() throws Exception
+	public void init( int windowWidth,int windowHeight ) throws Exception
 	{
 		shaderProgram = new ShaderProgram();
 		shaderProgram.createVertexShader( Utils.loadResource( "/vertex.vs" ) );
 		shaderProgram.createFragmentShader( Utils.loadResource( "/fragment.fs" ) );
 		shaderProgram.link();
+		shaderProgram.createUniform( VERTEX_SHADER_PARAM_TRANSFORM );
 
-		float[] vertices = new float[] { 0.0f, 0.5f, 0.0f, -0.5f, -0.5f, 0.0f, 0.5f, -0.5f, 0.0f };
-
-		FloatBuffer verticesBuffer = null;
-		try
+		float[] positions = new float[] 
+		{ 
+			-0.5f, 0.5f, -1.05f, 
+			-0.5f, -0.5f, -1.05f, 
+			0.5f, -0.5f, -1.05f, 
+			0.5f, 0.5f, -1.05f
+		};
+		float[] colours = new float[]
 		{
-			verticesBuffer = MemoryUtil.memAllocFloat( vertices.length );
-			verticesBuffer.put( vertices ).flip();
+			0.2f, 0.0f, 0.0f, 
+			0.0f, 0.5f, 0.0f, 
+			0.0f, 0.0f, 0.8f, 
+			0.0f, 0.5f, 0.5f, };
+		int[] indices = new int[] { 0, 1, 3, 3, 1, 2, };
+		mesh = new Mesh( positions,colours,indices );
 
-			// Create the VAO and bind to it
-			vaoId = glGenVertexArrays();
-			glBindVertexArray( vaoId );
-
-			// Create the VBO and bint to it
-			vboId = glGenBuffers();
-			glBindBuffer( GL_ARRAY_BUFFER,vboId );
-			glBufferData( GL_ARRAY_BUFFER,verticesBuffer,GL_STATIC_DRAW );
-			// Enable location 0
-			glEnableVertexAttribArray( 0 );
-			// Define structure of the data
-			glVertexAttribPointer( 0,3,GL_FLOAT,false,0,0 );
-
-			// Unbind the VBO
-			glBindBuffer( GL_ARRAY_BUFFER,0 );
-
-			// Unbind the VAO
-			glBindVertexArray( 0 );
-		}
-		finally
-		{
-			if ( verticesBuffer != null )
-			{
-				MemoryUtil.memFree( verticesBuffer );
-			}
-		}
+		float aspectRatio = (float)windowWidth / windowHeight;
+		projectionMatrix = new Matrix4f().setPerspective( Renderer.FOV,aspectRatio,Renderer.Z_NEAR,Renderer.Z_FAR );
 	}
 
 	public void render()
@@ -87,12 +65,13 @@ public class Renderer
 //		}
 
 		shaderProgram.bind();
+		shaderProgram.setUniform( VERTEX_SHADER_PARAM_TRANSFORM,projectionMatrix );
 
 		// Bind to the VAO
-		glBindVertexArray( vaoId );
+		glBindVertexArray( mesh.getVaoId() );
 
 		// Draw the vertices
-		glDrawArrays( GL_TRIANGLES,0,3 );
+		glDrawElements( GL_TRIANGLES,mesh.getVertexCount(),GL_UNSIGNED_INT,0 );
 
 		// Restore state
 		glBindVertexArray( 0 );
@@ -102,19 +81,10 @@ public class Renderer
 
 	public void cleanup()
 	{
-		if ( shaderProgram != null )
-		{
+		if ( shaderProgram!=null )
 			shaderProgram.cleanup();
-		}
 
-		glDisableVertexAttribArray( 0 );
-
-		// Delete the VBO
-		glBindBuffer( GL_ARRAY_BUFFER,0 );
-		glDeleteBuffers( vboId );
-
-		// Delete the VAO
-		glBindVertexArray( 0 );
-		glDeleteVertexArrays( vaoId );
+		if ( mesh!=null )
+			mesh.cleanUp();
 	}
 }

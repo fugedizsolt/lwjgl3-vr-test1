@@ -2,11 +2,19 @@ package test.gl02;
 
 import static org.lwjgl.opengl.GL20.*;
 
+import java.util.HashMap;
+import java.util.Map;
+
+import org.joml.Matrix4f;
+import org.lwjgl.system.MemoryStack;
+
 public class ShaderProgram
 {
 	private final int programId;
 	private int vertexShaderId;
 	private int fragmentShaderId;
+
+	private final Map<String,Integer> hmUniforms;
 
 	public ShaderProgram() throws Exception
 	{
@@ -14,6 +22,26 @@ public class ShaderProgram
 		if ( programId == 0 )
 		{
 			throw new Exception( "Could not create Shader" );
+		}
+		hmUniforms = new HashMap<>();
+	}
+
+	public void createUniform( String uniformName ) throws Exception
+	{
+		int uniformLocation = glGetUniformLocation( programId,uniformName );
+		if ( uniformLocation < 0 )
+		{
+			throw new Exception( "Could not find uniform:" + uniformName );
+		}
+		hmUniforms.put( uniformName,uniformLocation );
+	}
+
+	public void setUniform( String uniformName,Matrix4f value )
+	{
+		// Dump the matrix into a float buffer
+		try (MemoryStack stack = MemoryStack.stackPush())
+		{
+			glUniformMatrix4fv( hmUniforms.get( uniformName ),false,value.get( stack.mallocFloat( 16 ) ) );
 		}
 	}
 
@@ -70,7 +98,6 @@ public class ShaderProgram
 		{
 			System.err.println( "Warning validating Shader code: " + glGetProgramInfoLog( programId,1024 ) );
 		}
-
 	}
 
 	public void bind()

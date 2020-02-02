@@ -33,7 +33,7 @@ import static org.lwjgl.system.MemoryUtil.*;
 
 public class Main
 {
-	private static final int WIDTH = 300;
+	private static final int WIDTH = 400;
 	private static final int HEIGHT = 300;
 
 
@@ -53,7 +53,7 @@ public class Main
 			Renderer renderer = new Renderer();
 			try
 			{
-				renderer.init();
+				renderer.init( Main.WIDTH,Main.HEIGHT );
 				loop( windowHandle,renderer );
 			}
 			finally
@@ -137,7 +137,7 @@ public class Main
 		GL.createCapabilities();
 
 		// Set the clear color
-		glClearColor( 1.0f,0.0f,0.0f,0.0f );
+		glClearColor( 0.4f,0.4f,0.4f,0.0f );
 
 		glViewport( 0,0,Main.WIDTH,Main.HEIGHT );
 	}
