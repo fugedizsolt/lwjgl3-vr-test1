@@ -5,7 +5,6 @@ import java.nio.FloatBuffer;
 import org.lwjgl.openvr.HmdMatrix34;
 import org.lwjgl.openvr.HmdMatrix44;
 
-import com.badlogic.gdx.math.Matrix4;
 
 public class Utils
 {

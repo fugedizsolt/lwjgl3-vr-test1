@@ -2,14 +2,14 @@ package test;
 
 import java.nio.IntBuffer;
 
+import org.joml.Matrix4f;
+import org.joml.Vector3f;
 import org.lwjgl.openvr.OpenVR;
 import org.lwjgl.openvr.VR;
 import org.lwjgl.openvr.VREvent;
 import org.lwjgl.openvr.VRSystem;
 import org.lwjgl.system.MemoryStack;
 
-import com.badlogic.gdx.math.Matrix4;
-import com.badlogic.gdx.math.Vector3;
 
 public class ManagerOpenVR implements AutoCloseable
 {
@@ -20,8 +20,8 @@ public class ManagerOpenVR implements AutoCloseable
 	private final VRDevice[] devices;
 
 	// offsets for translation and rotation from tracker to world space
-	private final Vector3 trackerSpaceOriginToWorldSpaceTranslationOffset = new Vector3();
-	private final Matrix4 trackerSpaceToWorldspaceRotationOffset = new Matrix4();
+	private final Vector3f trackerSpaceOriginToWorldSpaceTranslationOffset = new Vector3f();
+	private final Matrix4f trackerSpaceToWorldspaceRotationOffset = new Matrix4f();
 
 
 	public ManagerOpenVR()
@@ -146,7 +146,7 @@ public class ManagerOpenVR implements AutoCloseable
 			}
 		}
 
-		devices[index] = new VRDevice( devicePoses[index],type,role,trackerSpaceOriginToWorldSpaceTranslationOffset,trackerSpaceToWorldspaceRotationOffset );
+		devices[index] = new VRDevice( devicePoses[index],type,role );
 		devices[index].updateAxesAndPosition();
 	}
 
