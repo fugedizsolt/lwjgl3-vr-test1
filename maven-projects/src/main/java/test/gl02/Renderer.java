@@ -2,6 +2,7 @@ package test.gl02;
 
 import static org.lwjgl.opengl.GL11.GL_COLOR_BUFFER_BIT;
 import static org.lwjgl.opengl.GL11.GL_DEPTH_BUFFER_BIT;
+import static org.lwjgl.opengl.GL11.GL_LINES;
 import static org.lwjgl.opengl.GL11.GL_TRIANGLES;
 import static org.lwjgl.opengl.GL11.GL_UNSIGNED_INT;
 import static org.lwjgl.opengl.GL11.glClear;
@@ -28,7 +29,8 @@ public class Renderer
 	private long renderTimestampFromStart = 0;
 
 	private ShaderProgram shaderProgram = null;
-	private Mesh mesh = null;
+	private Mesh meshForTriangles = null;
+	private Mesh meshForCoordLines = null;
 
 
 	public Renderer()
@@ -43,38 +45,67 @@ public class Renderer
 		shaderProgram.link();
 		shaderProgram.createUniform( VERTEX_SHADER_PARAM_TRANSFORM );
 
-		float[] positionsInWorldSpace = new float[] 
-		{ 
-			0.0f, 0.0f, 0.0f,
-			2.0f, 0.0f, 0.0f,
-			0.0f, 1.0f, 0.0f,
-
-			1.0f, 0.0f, -1.0f,
-			3.0f, 0.0f, -1.0f,
-			1.0f, 1.0f, -1.0f,
-
-			-990.0f,   0.0f, -900.0f,
-			 900.0f,   0.0f, -900.0f,
-			-900.0f, 900.0f, -900.0f,
-			 900.0f, 900.0f, -900.0f,
-		};
-		float[] colours = new float[]
 		{
-			0.7f, 0.2f, 0.2f, 
-			0.7f, 0.2f, 0.2f, 
-			0.7f, 0.2f, 0.2f,
+			float[] positionsInWorldSpace = new float[] 
+			{ 
+				0.0f, 0.0f, 0.0f,
+				2.0f, 0.0f, 0.0f,
+				0.0f, 1.0f, 0.0f,
 
-			0.2f, 0.7f, 0.2f, 
-			0.2f, 0.7f, 0.2f, 
-			0.2f, 0.7f, 0.2f,
+				1.0f, 0.0f, -1.0f,
+				3.0f, 0.0f, -1.0f,
+				1.0f, 1.0f, -1.0f,
 
-			0.8f, 0.8f, 0.95f, 
-			0.8f, 0.8f, 0.95f, 
-			0.8f, 0.8f, 0.95f,
-			0.8f, 0.8f, 0.95f,
-		};
-		int[] indices = new int[] { 0,1,2, 3,4,5, 6,7,8,7,8,9 };
-		mesh = new Mesh( positionsInWorldSpace,colours,indices );
+				-990.0f,   0.0f, -900.0f,
+				 900.0f,   0.0f, -900.0f,
+				-900.0f, 900.0f, -900.0f,
+				 900.0f, 900.0f, -900.0f,
+
+				0.0f, 0.0f, -900.0f,
+				0.0f, 0.0f,  900.0f,
+			};
+			float[] colours = new float[]
+			{
+				0.7f, 0.2f, 0.2f, 
+				0.7f, 0.2f, 0.2f, 
+				0.7f, 0.2f, 0.2f,
+
+				0.2f, 0.7f, 0.2f, 
+				0.2f, 0.7f, 0.2f, 
+				0.2f, 0.7f, 0.2f,
+
+				0.8f, 0.8f, 0.95f, 
+				0.8f, 0.8f, 0.95f, 
+				0.8f, 0.8f, 0.95f,
+				0.8f, 0.8f, 0.95f,
+
+				0.8f, 0.8f, 0.8f,
+				0.8f, 0.8f, 0.8f,
+			};
+			int[] indices = new int[] { 0,1,2, 3,4,5, 6,7,8,7,8,9, 10,11 };
+			meshForTriangles = new Mesh( positionsInWorldSpace,colours,indices );
+		}
+
+		{
+			float[] positionsInWorldSpace = new float[] 
+			{ 
+				0.0f, 0.0f, -900.0f,
+				0.0f, 0.0f,  900.0f,
+
+				2.0f, 0.0f, -900.0f,
+				2.0f, 0.0f,  900.0f,
+			};
+			float[] colours = new float[]
+			{
+				0.0f, 0.0f, 0.0f,
+				0.0f, 0.0f, 0.0f,
+
+				0.0f, 0.0f, 0.0f,
+				0.0f, 0.0f, 0.0f,
+			};
+			int[] indices = new int[] { 0,1, 2,3, };
+			meshForCoordLines = new Mesh( positionsInWorldSpace,colours,indices );
+		}
 
 		float aspectRatio = (float)windowWidth / windowHeight;
 		this.projectionMatrix = new Matrix4f().setPerspective( Renderer.FOV,aspectRatio,Renderer.Z_NEAR,Renderer.Z_FAR );
@@ -105,10 +136,10 @@ public class Renderer
 //		}
 
 		renderTimestampFromStart += longDeltaTime;
-		double doubleDeltaTime = renderTimestampFromStart/500.0d;
-		Vector3fc eye = new Vector3f( 1.0f+(float)Math.sin( doubleDeltaTime )/5.0f,(float)Math.cos( doubleDeltaTime )/10.0f,3.0f );
+		double doubleDeltaTime = renderTimestampFromStart/1000.0d;
+		Vector3fc eye = new Vector3f( 1.0f+(float)Math.sin( doubleDeltaTime )/5.0f,1.0f+(float)Math.cos( doubleDeltaTime )/10.0f,3.0f );
 //		Vector3fc eye = new Vector3f( 0.0f,0.0f,3.0f );
-		Vector3fc center = new Vector3f( 1.0f,0.0f,0.0f );
+		Vector3fc center = new Vector3f( 1.0f,1.0f,0.0f );
 		Vector3fc up = new Vector3f( 0.0f,1.0f,0.0f );
 		Matrix4f viewMatrix = new Matrix4f().setLookAt( eye,center,up );
 
@@ -119,10 +150,17 @@ public class Renderer
 		shaderProgram.setUniform( VERTEX_SHADER_PARAM_TRANSFORM,allTransformMatrix );
 
 		// Bind to the VAO
-		glBindVertexArray( mesh.getVaoId() );
-
+		glBindVertexArray( meshForTriangles.getVaoId() );
 		// Draw the vertices
-		glDrawElements( GL_TRIANGLES,mesh.getVertexCount(),GL_UNSIGNED_INT,0 );
+		glDrawElements( GL_TRIANGLES,meshForTriangles.getVertexCount(),GL_UNSIGNED_INT,0 );
+
+		// Restore state
+		glBindVertexArray( 0 );
+
+		// Bind to the VAO
+		glBindVertexArray( meshForCoordLines.getVaoId() );
+		// Draw the vertices
+		glDrawElements( GL_LINES,meshForCoordLines.getVertexCount(),GL_UNSIGNED_INT,0 );
 
 		// Restore state
 		glBindVertexArray( 0 );
@@ -135,8 +173,8 @@ public class Renderer
 		if ( shaderProgram!=null )
 			shaderProgram.cleanup();
 
-		if ( mesh!=null )
-			mesh.cleanUp();
+		if ( meshForTriangles!=null )
+			meshForTriangles.cleanUp();
 	}
 
 //	public static void main( String[] args )
