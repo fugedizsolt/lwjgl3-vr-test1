@@ -163,6 +163,7 @@
 	- Vclip = Mprojection x Mview x Mmodel x Vlocal
 		- fordított sorrend
 		- a Vclip a shader-ben a gl_Position
+	- az eddig használt "saját" quaternion class-ból a fromAngles megfelelője a JOML:rotationXYZ
 
 
 
