@@ -150,4 +150,20 @@
 			- https://github.com/JOML-CI/JOML.git
 		- sajat quat (jogl-ból)
 
+20200209:
+	- nagyon fontos, hogy ha vertex shader-t használunk, akkor az x és y is csak -1..+1 értéket vehet fel, a többi nem renderelődik!
+		- https://learnopengl.com/Getting-started/Hello-Triangle
+			Normalized Device Coordinates (NDC)
+			Once your vertex coordinates have been processed in the vertex shader, they should be in normalized device coordinates which is a small space where the x, y and z values vary from -1.0 to 1.0. 
+			Any coordinates that fall outside this range will be discarded/clipped and won't be visible on your screen. 
+	- mindenképpen érdemes shader-eket használni, mert így a GPU mem-be előre felküldött adatokon tudunk dolgozni
+	- a transzformációkhoz ez nagyon jó:
+		- https://learnopengl.com/Getting-started/Coordinate-Systems
+	- By convention, OpenGL is a right-handed system.
+	- Vclip = Mprojection x Mview x Mmodel x Vlocal
+		- fordított sorrend
+		- a Vclip a shader-ben a gl_Position
+
+
+
 x

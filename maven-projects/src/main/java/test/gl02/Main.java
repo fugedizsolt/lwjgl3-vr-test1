@@ -138,6 +138,7 @@ public class Main
 
 		// Set the clear color
 		glClearColor( 0.4f,0.4f,0.4f,0.0f );
+		glEnable( GL_DEPTH_TEST );
 
 		glViewport( 0,0,Main.WIDTH,Main.HEIGHT );
 	}
