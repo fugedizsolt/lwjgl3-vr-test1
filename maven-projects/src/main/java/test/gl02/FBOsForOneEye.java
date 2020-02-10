@@ -29,19 +29,20 @@ public class FBOsForOneEye
 		m_nRenderFramebufferId = glGenFramebuffers();
 		glBindFramebuffer( GL_FRAMEBUFFER,m_nRenderFramebufferId );
 		{
-			m_nRenderTextureId = glGenRenderbuffers();
-			glBindRenderbuffer( GL_RENDERBUFFER,m_nRenderTextureId );
-			glRenderbufferStorageMultisample( GL_RENDERBUFFER,samples,GL_RGBA8,nWidth,nHeight );
-			glFramebufferRenderbuffer( GL_FRAMEBUFFER,GL_COLOR_ATTACHMENT0,GL_RENDERBUFFER,m_nRenderTextureId );
-//			m_nRenderTextureId = glGenTextures();
-//			glBindTexture( GL_TEXTURE_2D_MULTISAMPLE,m_nRenderTextureId );
-//			glTexImage2DMultisample( GL_TEXTURE_2D_MULTISAMPLE,4,GL_RGBA8,nWidth,nHeight,true );
-//			glFramebufferTexture2D( GL_FRAMEBUFFER,GL_COLOR_ATTACHMENT0,GL_TEXTURE_2D_MULTISAMPLE,m_nRenderTextureId,0 );
+//			m_nRenderTextureId = glGenRenderbuffers();
+//			glBindRenderbuffer( GL_RENDERBUFFER,m_nRenderTextureId );
+//			glRenderbufferStorageMultisample( GL_RENDERBUFFER,samples,GL_RGBA8,nWidth,nHeight );
+//			glFramebufferRenderbuffer( GL_FRAMEBUFFER,GL_COLOR_ATTACHMENT0,GL_RENDERBUFFER,m_nRenderTextureId );
+
+			m_nRenderTextureId = glGenTextures();
+			glBindTexture( GL_TEXTURE_2D_MULTISAMPLE,m_nRenderTextureId );
+			glTexImage2DMultisample( GL_TEXTURE_2D_MULTISAMPLE,samples,GL_RGBA8,nWidth,nHeight,true );
+			glFramebufferTexture2D( GL_FRAMEBUFFER,GL_COLOR_ATTACHMENT0,GL_TEXTURE_2D_MULTISAMPLE,m_nRenderTextureId,0 );
 
 			m_nDepthBufferId = glGenRenderbuffers();
 			glBindRenderbuffer( GL_RENDERBUFFER,m_nDepthBufferId );
-			glRenderbufferStorageMultisample( GL_RENDERBUFFER,samples,GL_DEPTH24_STENCIL8,nWidth,nHeight );
-//			glRenderbufferStorageMultisample( GL_RENDERBUFFER,4,GL_DEPTH_COMPONENT,nWidth,nHeight );
+//			glRenderbufferStorageMultisample( GL_RENDERBUFFER,samples,GL_DEPTH24_STENCIL8,nWidth,nHeight );
+			glRenderbufferStorageMultisample( GL_RENDERBUFFER,samples,GL_DEPTH_COMPONENT,nWidth,nHeight );
 			glFramebufferRenderbuffer( GL_FRAMEBUFFER,GL_DEPTH_ATTACHMENT,GL_RENDERBUFFER,m_nDepthBufferId );
 
 			int fboStatus = glCheckFramebufferStatus( GL_FRAMEBUFFER );

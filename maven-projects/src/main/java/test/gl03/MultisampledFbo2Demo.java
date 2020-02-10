@@ -195,7 +195,8 @@ public class MultisampledFbo2Demo {
         /* Initially create the FBOs */
         createFBOs();
 
-        long lastTime = System.nanoTime();
+//        long lastTime = System.nanoTime();
+        long lastTime = System.currentTimeMillis();
         while (!destroyed) {
             /* Update the FBO if the window changed in size */
             update();
@@ -216,8 +217,10 @@ public class MultisampledFbo2Demo {
         glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
         glViewport(0, 0, width, height);
 
-        long thisTime = System.nanoTime();
-		float elapsed = (lastTime - thisTime) / 1E9f;
+//        long thisTime = System.nanoTime();
+        long thisTime = System.currentTimeMillis();
+//		float elapsed = (lastTime - thisTime) / 1E9f;
+        float elapsed = (lastTime - thisTime) / 20000.0f;
 
         /* Simple orthographic projection */
         float aspect = (float) width / height;
@@ -227,7 +230,7 @@ public class MultisampledFbo2Demo {
 
         /* Rotate a bit and draw a quad */
         glMatrixMode(GL_MODELVIEW);
-        glRotatef(elapsed * 2, 0, 0, 1);
+        glRotatef(elapsed , 0, 0, 1);
         glBegin(GL_QUADS);
         glVertex2f(-0.5f, -0.5f);
         glVertex2f(+0.5f, -0.5f);

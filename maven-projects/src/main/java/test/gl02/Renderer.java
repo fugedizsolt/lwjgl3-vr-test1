@@ -113,9 +113,6 @@ public class Renderer
 
 		float aspectRatio = (float)windowWidth / windowHeight;
 		this.projectionMatrix = new Matrix4f().setPerspective( Renderer.FOV,aspectRatio,Renderer.Z_NEAR,Renderer.Z_FAR );
-
-		glClearColor( 1.0f,1.0f,1.0f,0.0f );
-//		glColor3f( 0.1f,0.1f,0.1f );
 	}
 
 	public void render()
