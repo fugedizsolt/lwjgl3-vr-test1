@@ -7,7 +7,6 @@ import static org.lwjgl.opengl.ARBFramebufferObject.glBindFramebuffer;
 import static org.lwjgl.opengl.ARBFramebufferObject.glBlitFramebuffer;
 import static org.lwjgl.opengl.GL11.GL_COLOR_BUFFER_BIT;
 import static org.lwjgl.opengl.GL11.GL_DEPTH_BUFFER_BIT;
-import static org.lwjgl.opengl.GL11.GL_DEPTH_TEST;
 import static org.lwjgl.opengl.GL11.GL_LINES;
 import static org.lwjgl.opengl.GL11.GL_MODELVIEW;
 import static org.lwjgl.opengl.GL11.GL_NEAREST;
@@ -36,9 +35,10 @@ import static org.lwjgl.opengl.GL11.glTexEnvi;
 import static org.lwjgl.opengl.GL11.glVertex2f;
 import static org.lwjgl.opengl.GL11.glViewport;
 import static org.lwjgl.opengl.GL30.glBindVertexArray;
-import static org.lwjgl.opengl.GL13.GL_MULTISAMPLE;
 
 import org.joml.Matrix4f;
+import org.joml.Vector3f;
+import org.joml.Vector3fc;
 
 public class Renderer
 {
@@ -73,80 +73,80 @@ public class Renderer
 		fbo = new FBOsForOneEye();
 		fbo.createFBOs( windowWidth,windowHeight );
 
-		glEnable( GL_MULTISAMPLE );
+//		glEnable( GL_MULTISAMPLE );
 
-//		shaderProgram = new ShaderProgram();
-//		shaderProgram.createVertexShader( Utils.loadResource( GL02_VERTEX_SHADER ) );
-//		shaderProgram.createFragmentShader( Utils.loadResource( GL02_FRAGMENT_SHADER ) );
-//		shaderProgram.link();
-//		shaderProgram.createUniform( VERTEX_SHADER_PARAM_TRANSFORM );
-//
-//		{
-//			float[] positionsInWorldSpace = new float[] 
-//			{ 
-//				0.0f, 0.0f, 0.0f,
-//				2.0f, 0.0f, 0.0f,
-//				0.0f, 1.0f, 0.0f,
-//
-//				1.0f, 0.0f, -1.0f,
-//				3.0f, 0.0f, -1.0f,
-//				1.0f, 1.0f, -1.0f,
-//
-//				-990.0f,   0.0f, -900.0f,
-//				 900.0f,   0.0f, -900.0f,
-//				-900.0f, 900.0f, -900.0f,
-//				 900.0f, 900.0f, -900.0f,
-//
-//				0.0f, 0.0f, -900.0f,
-//				0.0f, 0.0f,  900.0f,
-//			};
-//			float[] colours = new float[]
-//			{
-//				0.7f, 0.2f, 0.2f, 
-//				0.7f, 0.2f, 0.2f, 
-//				0.7f, 0.2f, 0.2f,
-//
-//				0.2f, 0.7f, 0.2f, 
-//				0.2f, 0.7f, 0.2f, 
-//				0.2f, 0.7f, 0.2f,
-//
-//				0.8f, 0.8f, 0.95f, 
-//				0.8f, 0.8f, 0.95f, 
-//				0.8f, 0.8f, 0.95f,
-//				0.8f, 0.8f, 0.95f,
-//
-//				0.8f, 0.8f, 0.8f,
-//				0.8f, 0.8f, 0.8f,
-//			};
-//			int[] indices = new int[] { 0,1,2, 3,4,5, 6,7,8,7,8,9, 10,11 };
-//			meshForTriangles = new Mesh( positionsInWorldSpace,colours,indices );
-//		}
-//
-//		{
-//			float[] positionsInWorldSpace = new float[] 
-//			{ 
-//				0.0f, 0.0f, -900.0f,
-//				0.0f, 0.0f,  900.0f,
-//
-//				2.0f, 0.0f, -900.0f,
-//				2.0f, 0.0f,  900.0f,
-//			};
-//			float[] colours = new float[]
-//			{
-//				0.0f, 0.0f, 0.0f,
-//				0.0f, 0.0f, 0.0f,
-//
-//				0.0f, 0.0f, 0.0f,
-//				0.0f, 0.0f, 0.0f,
-//			};
-//			int[] indices = new int[] { 0,1, 2,3, };
-//			meshForCoordLines = new Mesh( positionsInWorldSpace,colours,indices );
-//		}
-//
-//		float aspectRatio = (float)windowWidth / windowHeight;
-//		this.projectionMatrix = new Matrix4f().setPerspective( Renderer.FOV,aspectRatio,Renderer.Z_NEAR,Renderer.Z_FAR );
-//
-//		glClearColor( 1.0f,1.0f,1.0f,0.0f );
+		shaderProgram = new ShaderProgram();
+		shaderProgram.createVertexShader( Utils.loadResource( GL02_VERTEX_SHADER ) );
+		shaderProgram.createFragmentShader( Utils.loadResource( GL02_FRAGMENT_SHADER ) );
+		shaderProgram.link();
+		shaderProgram.createUniform( VERTEX_SHADER_PARAM_TRANSFORM );
+
+		{
+			float[] positionsInWorldSpace = new float[] 
+			{ 
+				0.0f, 0.0f, 0.0f,
+				2.0f, 0.0f, 0.0f,
+				0.0f, 1.0f, 0.0f,
+
+				1.0f, 0.0f, -1.0f,
+				3.0f, 0.0f, -1.0f,
+				1.0f, 1.0f, -1.0f,
+
+				-990.0f,   0.0f, -900.0f,
+				 900.0f,   0.0f, -900.0f,
+				-900.0f, 900.0f, -900.0f,
+				 900.0f, 900.0f, -900.0f,
+
+				0.0f, 0.0f, -900.0f,
+				0.0f, 0.0f,  900.0f,
+			};
+			float[] colours = new float[]
+			{
+				0.7f, 0.2f, 0.2f, 
+				0.7f, 0.2f, 0.2f, 
+				0.7f, 0.2f, 0.2f,
+
+				0.2f, 0.7f, 0.2f, 
+				0.2f, 0.7f, 0.2f, 
+				0.2f, 0.7f, 0.2f,
+
+				0.8f, 0.8f, 0.95f, 
+				0.8f, 0.8f, 0.95f, 
+				0.8f, 0.8f, 0.95f,
+				0.8f, 0.8f, 0.95f,
+
+				0.8f, 0.8f, 0.8f,
+				0.8f, 0.8f, 0.8f,
+			};
+			int[] indices = new int[] { 0,1,2, 3,4,5, 6,7,8,7,8,9, 10,11 };
+			meshForTriangles = new Mesh( positionsInWorldSpace,colours,indices );
+		}
+
+		{
+			float[] positionsInWorldSpace = new float[] 
+			{ 
+				0.0f, 0.0f, -900.0f,
+				0.0f, 0.0f,  900.0f,
+
+				2.0f, 0.0f, -900.0f,
+				2.0f, 0.0f,  900.0f,
+			};
+			float[] colours = new float[]
+			{
+				0.0f, 0.0f, 0.0f,
+				0.0f, 0.0f, 0.0f,
+
+				0.0f, 0.0f, 0.0f,
+				0.0f, 0.0f, 0.0f,
+			};
+			int[] indices = new int[] { 0,1, 2,3, };
+			meshForCoordLines = new Mesh( positionsInWorldSpace,colours,indices );
+		}
+
+		float aspectRatio = (float)windowWidth / windowHeight;
+		this.projectionMatrix = new Matrix4f().setPerspective( Renderer.FOV,aspectRatio,Renderer.Z_NEAR,Renderer.Z_FAR );
+
+		glClearColor( 1.0f,1.0f,1.0f,0.0f );
 //		glColor3f( 0.1f,0.1f,0.1f );
 	}
 
@@ -166,16 +166,16 @@ public class Renderer
 
 	public void renderWithElapsedTime( long longDeltaTime )
 	{
-//		renderTimestampFromStart += longDeltaTime;
-//		double doubleDeltaTime = renderTimestampFromStart/1000.0d;
-//		Vector3fc eye = new Vector3f( 1.0f+(float)Math.sin( doubleDeltaTime )/5.0f,1.0f+(float)Math.cos( doubleDeltaTime )/10.0f,3.0f );
-////		Vector3fc eye = new Vector3f( 0.0f,0.0f,3.0f );
-//		Vector3fc center = new Vector3f( 1.0f,1.0f,0.0f );
-//		Vector3fc up = new Vector3f( 0.0f,1.0f,0.0f );
-//		Matrix4f viewMatrix = new Matrix4f().setLookAt( eye,center,up );
-//
-//		// Vclip = Mprojection x Mview x Mmodel x Vlocal
-//		projectionMatrix.mul( viewMatrix,allTransformMatrix );
+		renderTimestampFromStart += longDeltaTime;
+		double doubleDeltaTime = renderTimestampFromStart/1000.0d;
+		Vector3fc eye = new Vector3f( 1.0f+(float)Math.sin( doubleDeltaTime )/5.0f,1.0f+(float)Math.cos( doubleDeltaTime )/10.0f,3.0f );
+//		Vector3fc eye = new Vector3f( 0.0f,0.0f,3.0f );
+		Vector3fc center = new Vector3f( 1.0f,1.0f,0.0f );
+		Vector3fc up = new Vector3f( 0.0f,1.0f,0.0f );
+		Matrix4f viewMatrix = new Matrix4f().setLookAt( eye,center,up );
+
+		// Vclip = Mprojection x Mview x Mmodel x Vlocal
+		projectionMatrix.mul( viewMatrix,allTransformMatrix );
 
 //		render2();
 
@@ -246,8 +246,14 @@ public class Renderer
 	{
 		glBindFramebuffer( GL_FRAMEBUFFER,fbo.getRenderFramebufferId() );
 
-//		renderContent();
+		renderContent();
+//		renderContent2();
 
+		glBindFramebuffer( GL_FRAMEBUFFER,0 );
+	}
+
+	private void renderContent2()
+	{
 		glClearColor( 0.4f,0.4f,0.4f,0.0f );
 //		glEnable( GL_DEPTH_TEST );
 
@@ -272,12 +278,11 @@ public class Renderer
 		glVertex2f( +0.5f,+0.5f );
 		glVertex2f( -0.5f,+0.5f );
 		glEnd();
-
-		glBindFramebuffer( GL_FRAMEBUFFER,0 );
 	}
 
 	public void renderContent()
 	{
+		glClearColor( 0.4f,0.4f,0.4f,0.0f );
 		glClear( GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT );
 
 //		if ( window.isResized() )
