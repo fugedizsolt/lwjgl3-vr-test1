@@ -18,6 +18,8 @@ import org.lwjgl.glfw.GLFWKeyCallback;
 import org.lwjgl.glfw.GLFWKeyCallbackI;
 import org.lwjgl.glfw.GLFWVidMode;
 import org.lwjgl.opengl.GL;
+import org.lwjgl.opengl.GLUtil;
+import org.lwjgl.system.Callback;
 
 /*
 import org.lwjgl.glfw.*;
@@ -33,8 +35,8 @@ import static org.lwjgl.system.MemoryUtil.*;
 
 public class Main
 {
-	private static final int WIDTH = 400;
-	private static final int HEIGHT = 300;
+	public static final int WIDTH = 600;
+	public static final int HEIGHT = 400;
 
 
 	public Main()
@@ -54,7 +56,9 @@ public class Main
 			try
 			{
 				renderer.init( Main.WIDTH,Main.HEIGHT );
+				Callback debugProc = GLUtil.setupDebugMessageCallback();
 				loop( windowHandle,renderer );
+				if ( debugProc != null ) debugProc.free();
 			}
 			finally
 			{

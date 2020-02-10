@@ -119,40 +119,47 @@ public class MultisampledFbo2Demo {
         }
     }
 
-    void createFBOs() {
+    void createFBOs()
+    {
         /* Create multisampled FBO */
-        multisampledColorRenderBuffer = glGenRenderbuffers();
-        multisampledDepthRenderBuffer = glGenRenderbuffers();
         multisampledFbo = glGenFramebuffers();
         glBindFramebuffer(GL_FRAMEBUFFER, multisampledFbo);
-        glBindRenderbuffer(GL_RENDERBUFFER, multisampledColorRenderBuffer);
-        glRenderbufferStorageMultisample(GL_RENDERBUFFER, samples, GL_RGBA8, width, height);
-        glFramebufferRenderbuffer(GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT0, GL_RENDERBUFFER, multisampledColorRenderBuffer);
-        glBindRenderbuffer(GL_RENDERBUFFER, multisampledDepthRenderBuffer);
-        glRenderbufferStorageMultisample(GL_RENDERBUFFER, samples, GL_DEPTH24_STENCIL8, width, height);
-        glFramebufferRenderbuffer(GL_FRAMEBUFFER, GL_DEPTH_ATTACHMENT, GL_RENDERBUFFER, multisampledDepthRenderBuffer);
-        int fboStatus = glCheckFramebufferStatus(GL_FRAMEBUFFER);
-        if (fboStatus != GL_FRAMEBUFFER_COMPLETE) {
-            throw new AssertionError("Could not create FBO: " + fboStatus);
+        {
+            multisampledColorRenderBuffer = glGenRenderbuffers();
+            glBindRenderbuffer(GL_RENDERBUFFER, multisampledColorRenderBuffer);
+            glRenderbufferStorageMultisample(GL_RENDERBUFFER, samples, GL_RGBA8, width, height);
+            glFramebufferRenderbuffer(GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT0, GL_RENDERBUFFER, multisampledColorRenderBuffer);
+
+            multisampledDepthRenderBuffer = glGenRenderbuffers();
+            glBindRenderbuffer(GL_RENDERBUFFER, multisampledDepthRenderBuffer);
+            glRenderbufferStorageMultisample(GL_RENDERBUFFER, samples, GL_DEPTH24_STENCIL8, width, height);
+            glFramebufferRenderbuffer(GL_FRAMEBUFFER, GL_DEPTH_ATTACHMENT, GL_RENDERBUFFER, multisampledDepthRenderBuffer);
+            int fboStatus = glCheckFramebufferStatus(GL_FRAMEBUFFER);
+            if (fboStatus != GL_FRAMEBUFFER_COMPLETE) {
+                throw new AssertionError("Could not create FBO: " + fboStatus);
+            }
+            glBindRenderbuffer(GL_RENDERBUFFER, 0);
+            glBindFramebuffer(GL_FRAMEBUFFER, 0);
         }
-        glBindRenderbuffer(GL_RENDERBUFFER, 0);
-        glBindFramebuffer(GL_FRAMEBUFFER, 0);
+
 
         /* Create single-sampled FBO */
-        colorTexture = glGenTextures();
         fbo = glGenFramebuffers();
         glBindFramebuffer(GL_FRAMEBUFFER, fbo);
-        glBindTexture(GL_TEXTURE_2D, colorTexture);
-        glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR); // we also want to sample this texture later
-        glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR); // we also want to sample this texture later
-        glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA8, width, height, 0, GL_RGBA, GL_UNSIGNED_BYTE, (ByteBuffer) null);
-        glFramebufferTexture2D(GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT0, GL_TEXTURE_2D, colorTexture, 0);
-        fboStatus = glCheckFramebufferStatus(GL_FRAMEBUFFER);
-        if (fboStatus != GL_FRAMEBUFFER_COMPLETE) {
-            throw new AssertionError("Could not create FBO: " + fboStatus);
+        {
+            colorTexture = glGenTextures();
+            glBindTexture(GL_TEXTURE_2D, colorTexture);
+            glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR); // we also want to sample this texture later
+            glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR); // we also want to sample this texture later
+            glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA8, width, height, 0, GL_RGBA, GL_UNSIGNED_BYTE, (ByteBuffer) null);
+            glFramebufferTexture2D(GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT0, GL_TEXTURE_2D, colorTexture, 0);
+            int fboStatus = glCheckFramebufferStatus(GL_FRAMEBUFFER);
+            if (fboStatus != GL_FRAMEBUFFER_COMPLETE) {
+                throw new AssertionError("Could not create FBO: " + fboStatus);
+            }
+            glBindRenderbuffer(GL_RENDERBUFFER, 0);
+            glBindFramebuffer(GL_FRAMEBUFFER, 0);
         }
-        glBindRenderbuffer(GL_RENDERBUFFER, 0);
-        glBindFramebuffer(GL_FRAMEBUFFER, 0);
     }
 
     void resizeFBOs() {
@@ -193,60 +200,8 @@ public class MultisampledFbo2Demo {
             /* Update the FBO if the window changed in size */
             update();
 
-            /* Render to multisampled FBO */
-            glBindFramebuffer(GL_FRAMEBUFFER, multisampledFbo);
-            {
-                glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
-                glViewport(0, 0, width, height);
-
-                long thisTime = System.nanoTime();
-                float elapsed = (lastTime - thisTime) / 1E9f;
-
-                /* Simple orthographic projection */
-                float aspect = (float) width / height;
-                glMatrixMode(GL_PROJECTION);
-                glLoadIdentity();
-                glOrtho(-1.0f * aspect, +1.0f * aspect, -1.0f, +1.0f, -1.0f, +1.0f);
-
-                /* Rotate a bit and draw a quad */
-                glMatrixMode(GL_MODELVIEW);
-                glRotatef(elapsed * 2, 0, 0, 1);
-                glBegin(GL_QUADS);
-                glVertex2f(-0.5f, -0.5f);
-                glVertex2f(+0.5f, -0.5f);
-                glVertex2f(+0.5f, +0.5f);
-                glVertex2f(-0.5f, +0.5f);
-                glEnd();
-            }
-            glBindFramebuffer(GL_FRAMEBUFFER, 0);
-
-            /* Resolve by blitting to non-multisampled FBO */
-            glBindFramebuffer(GL_READ_FRAMEBUFFER, multisampledFbo);
-            glBindFramebuffer(GL_DRAW_FRAMEBUFFER, fbo);
-            glBlitFramebuffer(0, 0, width, height, 0, 0, width, height, GL_COLOR_BUFFER_BIT, GL_NEAREST);
-            glBindFramebuffer(GL_FRAMEBUFFER, 0);
-
-            /* Now you can just read from the resolved colorTexture */
-
-            /* But we will just draw it on the viewport using a fullscreen quad */
-            glEnable(GL_TEXTURE_2D);
-            glTexEnvi(GL_TEXTURE_ENV, GL_TEXTURE_ENV_MODE, GL_REPLACE);
-            glBindTexture(GL_TEXTURE_2D, colorTexture);
-            glMatrixMode(GL_PROJECTION);
-            glLoadIdentity();
-            glMatrixMode(GL_MODELVIEW);
-            glLoadIdentity();
-            glBegin(GL_QUADS);
-            glTexCoord2f(0, 0);
-            glVertex2f(-1, -1);
-            glTexCoord2f(1, 0);
-            glVertex2f(1, -1);
-            glTexCoord2f(1, 1);
-            glVertex2f(1, 1);
-            glTexCoord2f(0, 1);
-            glVertex2f(-1, 1);
-            glEnd();
-            glDisable(GL_TEXTURE_2D);
+//            render( lastTime );
+            render2( lastTime );
 
             synchronized (lock) {
                 if (!destroyed) {
@@ -256,7 +211,90 @@ public class MultisampledFbo2Demo {
         }
     }
 
-    void winProcLoop() {
+    private void render2( long lastTime )
+	{
+        glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
+        glViewport(0, 0, width, height);
+
+        long thisTime = System.nanoTime();
+		float elapsed = (lastTime - thisTime) / 1E9f;
+
+        /* Simple orthographic projection */
+        float aspect = (float) width / height;
+        glMatrixMode(GL_PROJECTION);
+        glLoadIdentity();
+        glOrtho(-1.0f * aspect, +1.0f * aspect, -1.0f, +1.0f, -1.0f, +1.0f);
+
+        /* Rotate a bit and draw a quad */
+        glMatrixMode(GL_MODELVIEW);
+        glRotatef(elapsed * 2, 0, 0, 1);
+        glBegin(GL_QUADS);
+        glVertex2f(-0.5f, -0.5f);
+        glVertex2f(+0.5f, -0.5f);
+        glVertex2f(+0.5f, +0.5f);
+        glVertex2f(-0.5f, +0.5f);
+        glEnd();
+	}
+
+	private void render( long lastTime )
+	{
+        /* Render to multisampled FBO */
+        glBindFramebuffer(GL_FRAMEBUFFER, multisampledFbo);
+        {
+            glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
+            glViewport(0, 0, width, height);
+
+            long thisTime = System.nanoTime();
+			float elapsed = (lastTime - thisTime) / 1E9f;
+
+            /* Simple orthographic projection */
+            float aspect = (float) width / height;
+            glMatrixMode(GL_PROJECTION);
+            glLoadIdentity();
+            glOrtho(-1.0f * aspect, +1.0f * aspect, -1.0f, +1.0f, -1.0f, +1.0f);
+
+            /* Rotate a bit and draw a quad */
+            glMatrixMode(GL_MODELVIEW);
+            glRotatef(elapsed * 2, 0, 0, 1);
+            glBegin(GL_QUADS);
+            glVertex2f(-0.5f, -0.5f);
+            glVertex2f(+0.5f, -0.5f);
+            glVertex2f(+0.5f, +0.5f);
+            glVertex2f(-0.5f, +0.5f);
+            glEnd();
+        }
+        glBindFramebuffer(GL_FRAMEBUFFER, 0);
+
+        /* Resolve by blitting to non-multisampled FBO */
+        glBindFramebuffer(GL_READ_FRAMEBUFFER, multisampledFbo);
+        glBindFramebuffer(GL_DRAW_FRAMEBUFFER, fbo);
+        glBlitFramebuffer(0, 0, width, height, 0, 0, width, height, GL_COLOR_BUFFER_BIT, GL_NEAREST);
+        glBindFramebuffer(GL_FRAMEBUFFER, 0);
+
+        /* Now you can just read from the resolved colorTexture */
+
+        /* But we will just draw it on the viewport using a fullscreen quad */
+        glEnable(GL_TEXTURE_2D);
+        glTexEnvi(GL_TEXTURE_ENV, GL_TEXTURE_ENV_MODE, GL_REPLACE);
+        glBindTexture(GL_TEXTURE_2D, colorTexture);
+        glMatrixMode(GL_PROJECTION);
+        glLoadIdentity();
+        glMatrixMode(GL_MODELVIEW);
+        glLoadIdentity();
+        glBegin(GL_QUADS);
+        glTexCoord2f(0, 0);
+        glVertex2f(-1, -1);
+        glTexCoord2f(1, 0);
+        glVertex2f(1, -1);
+        glTexCoord2f(1, 1);
+        glVertex2f(1, 1);
+        glTexCoord2f(0, 1);
+        glVertex2f(-1, 1);
+        glEnd();
+        glDisable(GL_TEXTURE_2D);
+	}
+
+	void winProcLoop() {
         /*
          * Start new thread to have the OpenGL context current in and which does
          * the rendering.
