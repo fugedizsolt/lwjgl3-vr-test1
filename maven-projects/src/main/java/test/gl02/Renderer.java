@@ -1,39 +1,7 @@
 package test.gl02;
 
-import static org.lwjgl.opengl.ARBFramebufferObject.GL_DRAW_FRAMEBUFFER;
-import static org.lwjgl.opengl.ARBFramebufferObject.GL_FRAMEBUFFER;
-import static org.lwjgl.opengl.ARBFramebufferObject.GL_READ_FRAMEBUFFER;
-import static org.lwjgl.opengl.ARBFramebufferObject.glBindFramebuffer;
-import static org.lwjgl.opengl.ARBFramebufferObject.glBlitFramebuffer;
-import static org.lwjgl.opengl.GL11.GL_COLOR_BUFFER_BIT;
-import static org.lwjgl.opengl.GL11.GL_DEPTH_BUFFER_BIT;
-import static org.lwjgl.opengl.GL11.GL_LINES;
-import static org.lwjgl.opengl.GL11.GL_MODELVIEW;
-import static org.lwjgl.opengl.GL11.GL_NEAREST;
-import static org.lwjgl.opengl.GL11.GL_PROJECTION;
-import static org.lwjgl.opengl.GL11.GL_QUADS;
-import static org.lwjgl.opengl.GL11.GL_REPLACE;
-import static org.lwjgl.opengl.GL11.GL_TEXTURE_2D;
-import static org.lwjgl.opengl.GL11.GL_TEXTURE_ENV;
-import static org.lwjgl.opengl.GL11.GL_TEXTURE_ENV_MODE;
-import static org.lwjgl.opengl.GL11.GL_TRIANGLES;
-import static org.lwjgl.opengl.GL11.GL_UNSIGNED_INT;
-import static org.lwjgl.opengl.GL11.glBegin;
-import static org.lwjgl.opengl.GL11.glBindTexture;
-import static org.lwjgl.opengl.GL11.glClear;
-import static org.lwjgl.opengl.GL11.glClearColor;
-import static org.lwjgl.opengl.GL11.glDisable;
-import static org.lwjgl.opengl.GL11.glDrawElements;
-import static org.lwjgl.opengl.GL11.glEnable;
-import static org.lwjgl.opengl.GL11.glEnd;
-import static org.lwjgl.opengl.GL11.glLoadIdentity;
-import static org.lwjgl.opengl.GL11.glMatrixMode;
-import static org.lwjgl.opengl.GL11.glOrtho;
-import static org.lwjgl.opengl.GL11.glRotatef;
-import static org.lwjgl.opengl.GL11.glTexCoord2f;
-import static org.lwjgl.opengl.GL11.glTexEnvi;
-import static org.lwjgl.opengl.GL11.glVertex2f;
-import static org.lwjgl.opengl.GL11.glViewport;
+import static org.lwjgl.opengl.ARBFramebufferObject.*;
+import static org.lwjgl.opengl.GL11.*;
 import static org.lwjgl.opengl.GL30.glBindVertexArray;
 
 import org.joml.Matrix4f;
@@ -59,7 +27,7 @@ public class Renderer
 	private Mesh meshForTriangles = null;
 	private Mesh meshForCoordLines = null;
 	private FBOsForOneEye fbo = null;
-	private long lastTime;
+//	private long lastTime;
 
 
 	public Renderer()
@@ -68,7 +36,7 @@ public class Renderer
 
 	public void init( int windowWidth,int windowHeight ) throws Exception
 	{
-		this.lastTime = System.nanoTime();
+//		this.lastTime = System.nanoTime();
 
 		fbo = new FBOsForOneEye();
 		fbo.createFBOs( windowWidth,windowHeight );
@@ -184,30 +152,30 @@ public class Renderer
 		renderTextureToScreen();
 	}
 
-	private void render2()
-	{
-		glClear( GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT );
-		glViewport( 0,0,Main.WIDTH,Main.HEIGHT );
-
-		long thisTime = System.nanoTime();
-		float elapsed = (lastTime - thisTime) / 1E9f;
-
-		/* Simple orthographic projection */
-		float aspect = (float)Main.WIDTH/Main.HEIGHT;
-		glMatrixMode( GL_PROJECTION );
-		glLoadIdentity();
-		glOrtho( -1.0f * aspect,+1.0f * aspect,-1.0f,+1.0f,-1.0f,+1.0f );
-
-		/* Rotate a bit and draw a quad */
-		glMatrixMode( GL_MODELVIEW );
-		glRotatef( elapsed * 2,0,0,1 );
-		glBegin( GL_QUADS );
-		glVertex2f( -0.5f,-0.5f );
-		glVertex2f( +0.5f,-0.5f );
-		glVertex2f( +0.5f,+0.5f );
-		glVertex2f( -0.5f,+0.5f );
-		glEnd();
-	}
+//	private void render2()
+//	{
+//		glClear( GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT );
+//		glViewport( 0,0,Main.WIDTH,Main.HEIGHT );
+//
+//		long thisTime = System.nanoTime();
+//		float elapsed = (lastTime - thisTime) / 1E9f;
+//
+//		/* Simple orthographic projection */
+//		float aspect = (float)Main.WIDTH/Main.HEIGHT;
+//		glMatrixMode( GL_PROJECTION );
+//		glLoadIdentity();
+//		glOrtho( -1.0f * aspect,+1.0f * aspect,-1.0f,+1.0f,-1.0f,+1.0f );
+//
+//		/* Rotate a bit and draw a quad */
+//		glMatrixMode( GL_MODELVIEW );
+//		glRotatef( elapsed * 2,0,0,1 );
+//		glBegin( GL_QUADS );
+//		glVertex2f( -0.5f,-0.5f );
+//		glVertex2f( +0.5f,-0.5f );
+//		glVertex2f( +0.5f,+0.5f );
+//		glVertex2f( -0.5f,+0.5f );
+//		glEnd();
+//	}
 
 	private void renderTextureToScreen()
 	{
@@ -252,33 +220,33 @@ public class Renderer
 		glBindFramebuffer( GL_FRAMEBUFFER,0 );
 	}
 
-	private void renderContent2()
-	{
-		glClearColor( 0.4f,0.4f,0.4f,0.0f );
-//		glEnable( GL_DEPTH_TEST );
-
-		glClear( GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT );
-//		glViewport( 0,0,Main.WIDTH,Main.HEIGHT );
-
-		long thisTime = System.nanoTime();
-		float elapsed = (lastTime - thisTime) / 1E9f;
-
-		/* Simple orthographic projection */
-		float aspect = (float)Main.WIDTH/Main.HEIGHT;
-		glMatrixMode( GL_PROJECTION );
-		glLoadIdentity();
-		glOrtho( -1.0f * aspect,+1.0f * aspect,-1.0f,+1.0f,-1.0f,+1.0f );
-
-		/* Rotate a bit and draw a quad */
-		glMatrixMode( GL_MODELVIEW );
-		glRotatef( elapsed * 2,0,0,1 );
-		glBegin( GL_QUADS );
-		glVertex2f( -0.5f,-0.5f );
-		glVertex2f( +0.5f,-0.5f );
-		glVertex2f( +0.5f,+0.5f );
-		glVertex2f( -0.5f,+0.5f );
-		glEnd();
-	}
+//	private void renderContent2()
+//	{
+//		glClearColor( 0.4f,0.4f,0.4f,0.0f );
+////		glEnable( GL_DEPTH_TEST );
+//
+//		glClear( GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT );
+////		glViewport( 0,0,Main.WIDTH,Main.HEIGHT );
+//
+//		long thisTime = System.nanoTime();
+//		float elapsed = (lastTime - thisTime) / 1E9f;
+//
+//		/* Simple orthographic projection */
+//		float aspect = (float)Main.WIDTH/Main.HEIGHT;
+//		glMatrixMode( GL_PROJECTION );
+//		glLoadIdentity();
+//		glOrtho( -1.0f * aspect,+1.0f * aspect,-1.0f,+1.0f,-1.0f,+1.0f );
+//
+//		/* Rotate a bit and draw a quad */
+//		glMatrixMode( GL_MODELVIEW );
+//		glRotatef( elapsed * 2,0,0,1 );
+//		glBegin( GL_QUADS );
+//		glVertex2f( -0.5f,-0.5f );
+//		glVertex2f( +0.5f,-0.5f );
+//		glVertex2f( +0.5f,+0.5f );
+//		glVertex2f( -0.5f,+0.5f );
+//		glEnd();
+//	}
 
 	public void renderContent()
 	{
