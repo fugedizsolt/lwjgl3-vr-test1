@@ -141,10 +141,10 @@ public class Main
 		GL.createCapabilities();
 
 		// Set the clear color
-		glClearColor( 0.4f,0.4f,0.4f,0.0f );
-		glEnable( GL_DEPTH_TEST );
+		//glClearColor( 0.4f,0.4f,0.4f,0.0f );
+		//glEnable( GL_DEPTH_TEST );
 
-		glViewport( 0,0,Main.WIDTH,Main.HEIGHT );
+		//glViewport( 0,0,Main.WIDTH,Main.HEIGHT );
 	}
 
 	private void loop( long windowHandle,Renderer renderer )
