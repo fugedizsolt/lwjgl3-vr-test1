@@ -21,10 +21,10 @@ public class FBOsForTwoEyes
 
 	private int nWidth,nHeight;
 
-	public void createFBOs( int nWidth,int nHeight )
+	public void createFBOs( int paramWidth,int paramHeight )
 	{
-		this.nWidth = nWidth;
-		this.nHeight = nHeight;
+		this.nWidth = paramWidth;
+		this.nHeight = paramHeight;
 
 		int samples = glGetInteger( GL_MAX_SAMPLES );
 		System.err.println( "Using " + samples + "x multisampling" );

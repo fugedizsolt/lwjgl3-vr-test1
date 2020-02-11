@@ -45,7 +45,7 @@ public class Renderer
 		fbo.createFBOs( windowWidth/2,windowHeight );
 
 //		glEnable( GL_MULTISAMPLE );
-		glEnable( GL_DEPTH_TEST );
+//		glEnable( GL_DEPTH_TEST );
 
 		shaderProgram = new ShaderProgram();
 		shaderProgram.createVertexShader( Utils.loadResource( GL02_VERTEX_SHADER ) );
@@ -161,24 +161,29 @@ public class Renderer
 		renderTestTextureToFBOEye2();
 		fillTextureWithFrameBufferdata( fbo.getFramebufferIdEye2() );
 
-		renderTextureToScreen();
+		renderTextureFBOsToScreen();
 	}
 
 	private void renderTestTextureToFBOEye1()
 	{
+		glViewport( 0,0,fbo.getWidth(),fbo.getHeight() );
+
 		glBindFramebuffer( GL_FRAMEBUFFER,fbo.getRenderFramebufferId() );
+
+		glClearColor( 0.4f,0.4f,0.4f,0.0f );
 		glClear( GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT );
 
 		glMatrixMode( GL_PROJECTION );
 		glLoadIdentity();
+//		float aspectRatio = (float)fbo.getWidth() / fbo.getHeight();
+//		glOrtho( -1.0f * aspectRatio,+1.0f * aspectRatio,-1.0f,+1.0f,-1.0f,+1.0f );
 		glMatrixMode( GL_MODELVIEW );
 		glLoadIdentity();
 
-		glViewport( 0,0,fbo.getWidth(),fbo.getHeight() );
 		glColor3f( 0.0f,0.0f,0.0f );
 		glBegin( GL_LINES );
-		glVertex2f( -0.95f,-0.95f );
-		glVertex2f( -0.05f, 0.95f );
+		glVertex2f( -1f,-1f );
+		glVertex2f(  1f, 1f );
 		glEnd();
 
 		glBindFramebuffer( GL_FRAMEBUFFER,0 );
@@ -186,22 +191,28 @@ public class Renderer
 
 	private void renderTestTextureToFBOEye2()
 	{
+		glViewport( 0,0,fbo.getWidth(),fbo.getHeight() );
+
 		glBindFramebuffer( GL_FRAMEBUFFER,fbo.getRenderFramebufferId() );
+
+		glClearColor( 0.4f,0.4f,0.4f,0.0f );
 		glClear( GL_COLOR_BUFFER_BIT );
 
 		glMatrixMode( GL_PROJECTION );
 		glLoadIdentity();
+//		float aspectRatio = (float)fbo.getWidth() / fbo.getHeight();
+//		glOrtho( -1.0f * aspectRatio,+1.0f * aspectRatio,-1.0f,+1.0f,-1.0f,+1.0f );
+
 		glMatrixMode( GL_MODELVIEW );
 		glLoadIdentity();
 
-		glViewport( 0,0,fbo.getWidth(),fbo.getHeight() );
 		glColor3f( 0.0f,0.0f,0.0f );
 
 		glBegin( GL_QUADS );
-		glVertex2f( 0.05f,-0.95f );
-		glVertex2f( 0.95f,-0.95f );
-		glVertex2f( 0.95f,0.95f );
-		glVertex2f( 0.05f,0.95f );
+		glVertex2f( -1f,-1f );
+		glVertex2f(  1f,-1f );
+		glVertex2f(  1f, 1f );
+		glVertex2f( -1f, 1f );
 		glEnd();
 
 		glBindFramebuffer( GL_FRAMEBUFFER,0 );
@@ -232,7 +243,41 @@ public class Renderer
 //		glEnd();
 //	}
 
-	private void renderTextureToScreen()
+	private void renderTextureFBOsToScreen()
+	{
+		glClearColor( 0.4f,0.4f,0.4f,0.0f );
+		glClear( GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT );
+
+		glMatrixMode( GL_PROJECTION );
+		glLoadIdentity();
+		glMatrixMode( GL_MODELVIEW );
+		glLoadIdentity();
+
+		glViewport( 0,0,2*fbo.getWidth(),fbo.getHeight() );
+
+		glEnable( GL_TEXTURE_2D );
+		glTexEnvi( GL_TEXTURE_ENV,GL_TEXTURE_ENV_MODE,GL_REPLACE );
+
+		glBindTexture( GL_TEXTURE_2D,fbo.getTextureIdEye1() );
+		glBegin( GL_QUADS );
+		glTexCoord2f( 0,0 );	glVertex2f( -1,-1 );
+		glTexCoord2f( 1,0 );	glVertex2f(  0,-1 );
+		glTexCoord2f( 1,1 );	glVertex2f(  0, 1 );
+		glTexCoord2f( 0,1 );	glVertex2f( -1, 1 );
+		glEnd();
+
+		glBindTexture( GL_TEXTURE_2D,fbo.getTextureIdEye2() );
+		glBegin( GL_QUADS );
+		glTexCoord2f( 0,0 );	glVertex2f(  0,-1 );
+		glTexCoord2f( 1,0 );	glVertex2f(  1,-1 );
+		glTexCoord2f( 1,1 );	glVertex2f(  1, 1 );
+		glTexCoord2f( 0,1 );	glVertex2f(  0, 1 );
+		glEnd();
+
+		glDisable( GL_TEXTURE_2D );
+	}
+
+	private void renderTestToScreen()
 	{
 		glClearColor( 0.4f,0.4f,0.4f,0.0f );
 		glClear( GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT );
@@ -255,33 +300,6 @@ public class Renderer
 		glVertex2f( 0.95f,0.95f );
 		glVertex2f( 0.05f,0.95f );
 		glEnd();
-
-//		glEnable( GL_TEXTURE_2D );
-//		glTexEnvi( GL_TEXTURE_ENV,GL_TEXTURE_ENV_MODE,GL_REPLACE );
-
-//		glViewport( 0,0,fbo.getWidth(),fbo.getHeight() );
-//		glBindTexture( GL_TEXTURE_2D,fbo.getTextureIdEye1() );
-//		glBegin( GL_QUADS );
-//		glTexCoord2f( 0,0 );
-//		glVertex2f( -1,-1 );
-//		glTexCoord2f( 1,0 );
-//		glVertex2f( 1,-1 );
-//		glTexCoord2f( 1,1 );
-//		glVertex2f( 1,1 );
-//		glTexCoord2f( 0,1 );
-//		glVertex2f( -1,1 );
-//		glEnd();
-
-//		glViewport( 0,0,2*fbo.getWidth(),fbo.getHeight() );
-//		glBindTexture( GL_TEXTURE_2D,fbo.getTextureIdEye2() );
-//		glBegin( GL_QUADS );
-//		glTexCoord2f( 0,0 );	glVertex2f( -1,-1 );
-//		glTexCoord2f( 1,0 );	glVertex2f(  1,-1 );
-//		glTexCoord2f( 1,1 );	glVertex2f(  1, 1 );
-//		glTexCoord2f( 0,1 );	glVertex2f( -1, 1 );
-//		glEnd();
-
-//		glDisable( GL_TEXTURE_2D );
 	}
 
 	private void fillTextureWithFrameBufferdata( int fboId )
@@ -332,6 +350,8 @@ public class Renderer
 
 	public void renderContent( Matrix4f allTransformMatrix )
 	{
+		glViewport( 0,0,fbo.getWidth(),fbo.getHeight() );
+
 		glClearColor( 0.4f,0.4f,0.4f,0.0f );
 		glClear( GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT );
 
