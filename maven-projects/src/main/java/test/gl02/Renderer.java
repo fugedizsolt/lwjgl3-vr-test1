@@ -45,7 +45,7 @@ public class Renderer
 		fbo.createFBOs( windowWidth/2,windowHeight );
 
 //		glEnable( GL_MULTISAMPLE );
-//		glEnable( GL_DEPTH_TEST );
+		glEnable( GL_DEPTH_TEST );
 
 		shaderProgram = new ShaderProgram();
 		shaderProgram.createVertexShader( Utils.loadResource( GL02_VERTEX_SHADER ) );
@@ -98,10 +98,10 @@ public class Renderer
 			float[] positionsInWorldSpace = new float[] 
 			{ 
 				0.0f, 0.0f, -900.0f,
-				0.0f, 0.0f,  900.0f,
+				0.0f, 0.0f,    3.0f,
 
 				2.0f, 0.0f, -900.0f,
-				2.0f, 0.0f,  900.0f,
+				2.0f, 0.0f,    3.0f,
 			};
 			float[] colours = new float[]
 			{
@@ -137,10 +137,10 @@ public class Renderer
 	{
 		renderTimestampFromStart += longDeltaTime;
 		double doubleDeltaTime = renderTimestampFromStart/1000.0d;
-		Vector3fc eye1 = new Vector3f( 1.0f+(float)Math.sin( doubleDeltaTime )/5.0f,1.0f+(float)Math.cos( doubleDeltaTime )/10.0f,5.0f );
-		Vector3fc eye2 = new Vector3f( 1.5f+(float)Math.sin( doubleDeltaTime )/5.0f,1.0f+(float)Math.cos( doubleDeltaTime )/10.0f,5.0f );
+		Vector3fc eye1 = new Vector3f( 1.0f+(float)Math.sin( doubleDeltaTime )/5.0f,1.0f+(float)Math.cos( doubleDeltaTime )/10.0f,10.0f );
+		Vector3fc eye2 = new Vector3f( 1.5f+(float)Math.sin( doubleDeltaTime )/5.0f,1.0f+(float)Math.cos( doubleDeltaTime )/10.0f,10.0f );
 //		Vector3fc eye = new Vector3f( 0.0f,0.0f,3.0f );
-		Vector3fc center = new Vector3f( 1.0f,1.0f,0.0f );
+		Vector3fc center = new Vector3f( 0.0f,0.0f,-900.0f );
 		Vector3fc up = new Vector3f( 0.0f,1.0f,0.0f );
 		viewMatrixEye1.setLookAt( eye1,center,up );
 		viewMatrixEye2.setLookAt( eye2,center,up );
@@ -151,15 +151,15 @@ public class Renderer
 
 //		render2();
 
-//		renderToFrameBuffer( allTransformMatrixEye1 );
-//		fillTextureWithFrameBufferdata( fbo.getFramebufferIdEye1() );
-//		renderToFrameBuffer( allTransformMatrixEye2 );
-//		fillTextureWithFrameBufferdata( fbo.getFramebufferIdEye2() );
-
-		renderTestTextureToFBOEye1();
+		renderToFrameBuffer( allTransformMatrixEye1 );
 		fillTextureWithFrameBufferdata( fbo.getFramebufferIdEye1() );
-		renderTestTextureToFBOEye2();
+		renderToFrameBuffer( allTransformMatrixEye2 );
 		fillTextureWithFrameBufferdata( fbo.getFramebufferIdEye2() );
+
+//		renderTestTextureToFBOEye1();
+//		fillTextureWithFrameBufferdata( fbo.getFramebufferIdEye1() );
+//		renderTestTextureToFBOEye2();
+//		fillTextureWithFrameBufferdata( fbo.getFramebufferIdEye2() );
 
 		renderTextureFBOsToScreen();
 	}
