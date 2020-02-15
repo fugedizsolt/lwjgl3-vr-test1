@@ -1,18 +1,32 @@
 package test;
 
+import java.nio.FloatBuffer;
 import java.nio.IntBuffer;
+import java.nio.LongBuffer;
+import java.util.Arrays;
+import java.util.Iterator;
 
 import org.joml.Matrix4f;
 import org.joml.Vector3f;
+import org.lwjgl.openvr.HmdMatrix34;
+import org.lwjgl.openvr.InputDigitalActionData;
 import org.lwjgl.openvr.OpenVR;
+import org.lwjgl.openvr.TrackedDevicePose;
 import org.lwjgl.openvr.VR;
+import org.lwjgl.openvr.VRActiveActionSet;
+import org.lwjgl.openvr.VRActiveActionSet.Buffer;
+import org.lwjgl.openvr.VRCompositor;
 import org.lwjgl.openvr.VREvent;
+import org.lwjgl.openvr.VRInput;
 import org.lwjgl.openvr.VRSystem;
 import org.lwjgl.system.MemoryStack;
 
 
 public class ManagerOpenVR implements AutoCloseable
 {
+	private static final String ACTIONS_DEMO = "/actions/demo";
+	private static final String ACTIONS_DEMO_IN_HIDE_CUBES = "/actions/demo/in/HideCubes";
+	private static final String HELLOVR_ACTIONS_JSON = "hellovr_actions.json";
 	private final MemoryStack stack;
 	private final int openVRtoken;
 	private final VREvent event;
@@ -22,6 +36,15 @@ public class ManagerOpenVR implements AutoCloseable
 	// offsets for translation and rotation from tracker to world space
 	private final Vector3f trackerSpaceOriginToWorldSpaceTranslationOffset = new Vector3f();
 	private final Matrix4f trackerSpaceToWorldspaceRotationOffset = new Matrix4f();
+
+	private final LongBuffer pHandleAction1 = LongBuffer.allocate( 1 );
+	private final LongBuffer pHandleActionsDemo = LongBuffer.allocate( 1 );
+	private final Buffer mallocActionSet = VRActiveActionSet.create( 1 );
+	private final InputDigitalActionData pAction1Data = InputDigitalActionData.create();
+	private final TrackedDevicePose.Buffer pRenderPoseArray = TrackedDevicePose.create( VR.k_unMaxTrackedDeviceCount );
+	private final HmdMatrix34 poseHmdMatrix34 = HmdMatrix34.create();
+	private final FloatBuffer poseHmdMatrix34FloatBuffer = FloatBuffer.allocate( 12 );
+
 
 
 	public ManagerOpenVR()
@@ -34,6 +57,10 @@ public class ManagerOpenVR implements AutoCloseable
 			this.devices = new VRDevice[VR.k_unMaxTrackedDeviceCount];
 
 			this.openVRtoken = createOpenVR();
+
+			listDevices();
+
+			initVRInput();
 		}
 		catch ( Exception exc )
 		{
@@ -42,11 +69,21 @@ public class ManagerOpenVR implements AutoCloseable
 		}
 	}
 
+	private void initVRInput()
+	{
+		CharSequence pchActionManifestPath = new String( HELLOVR_ACTIONS_JSON );
+		VRInput.VRInput_SetActionManifestPath( pchActionManifestPath );
+
+		VRInput.VRInput_GetActionHandle( ACTIONS_DEMO_IN_HIDE_CUBES,pHandleAction1 );
+		VRInput.VRInput_GetActionSetHandle( ACTIONS_DEMO,pHandleActionsDemo );
+		mallocActionSet.ulActionSet( pHandleActionsDemo.get( 0 ) );
+	}
+
 	private int createOpenVR()
 	{
-		HelloOpenVR.log( "VR_IsRuntimeInstalled() = " + VR.VR_IsRuntimeInstalled() );
-		HelloOpenVR.log( "VR_RuntimePath() = " + VR.VR_RuntimePath() );
-		HelloOpenVR.log( "VR_IsHmdPresent() = " + VR.VR_IsHmdPresent() );
+		HelloOpenVR.log( "VR_IsRuntimeInstalled(%b)",VR.VR_IsRuntimeInstalled() );
+		HelloOpenVR.log( "VR_RuntimePath(%s)",VR.VR_RuntimePath() );
+		HelloOpenVR.log( "VR_IsHmdPresent(%b)",VR.VR_IsHmdPresent() );
 
 		IntBuffer peError = stack.mallocInt( 1 );
 
@@ -57,13 +94,13 @@ public class ManagerOpenVR implements AutoCloseable
 			int rc = peError.get( 0 );
 			if ( rc!=0 )
 			{
-				HelloOpenVR.log( "INIT ERROR SYMBOL: " + VR.VR_GetVRInitErrorAsSymbol( rc ) );
-				HelloOpenVR.log( "INIT ERROR  DESCR: " + VR.VR_GetVRInitErrorAsEnglishDescription( rc ) );
+				HelloOpenVR.log( "INIT ERROR SYMBOL (%s)",VR.VR_GetVRInitErrorAsSymbol( rc ) );
+				HelloOpenVR.log( "INIT ERROR  DESCR (%s)",VR.VR_GetVRInitErrorAsEnglishDescription( rc ) );
 				throw new RuntimeException( "VR_InitInternal peError.get( 0 ):" + rc );
 			}
 			if ( token==0 )
 				throw new RuntimeException( "token=0" );
-			HelloOpenVR.log( String.format( "token=%d",token ) );
+			HelloOpenVR.log( "token=%d",token );
 
 			OpenVR.create( token );
 		}
@@ -75,12 +112,12 @@ public class ManagerOpenVR implements AutoCloseable
 		return token;
 	}
 
-	public void listDevices()
+	private void listDevices()
 	{
 		IntBuffer peError = stack.mallocInt( 1 );
 
-		HelloOpenVR.log( "Model Number : " + VRSystem.VRSystem_GetStringTrackedDeviceProperty( VR.k_unTrackedDeviceIndex_Hmd,VR.ETrackedDeviceProperty_Prop_ModelNumber_String,peError ) );
-		HelloOpenVR.log( "Serial Number: " + VRSystem.VRSystem_GetStringTrackedDeviceProperty( VR.k_unTrackedDeviceIndex_Hmd,VR.ETrackedDeviceProperty_Prop_SerialNumber_String,peError ) );
+		HelloOpenVR.log( "Model Number (%s)",VRSystem.VRSystem_GetStringTrackedDeviceProperty( VR.k_unTrackedDeviceIndex_Hmd,VR.ETrackedDeviceProperty_Prop_ModelNumber_String,peError ) );
+		HelloOpenVR.log( "Serial Number(%s)",VRSystem.VRSystem_GetStringTrackedDeviceProperty( VR.k_unTrackedDeviceIndex_Hmd,VR.ETrackedDeviceProperty_Prop_SerialNumber_String,peError ) );
 
 		int countBaseStations = 0;
 		for ( int ic=VR.k_unTrackedDeviceIndex_Hmd; ic<VR.k_unMaxTrackedDeviceCount; ic++ )
@@ -88,10 +125,10 @@ public class ManagerOpenVR implements AutoCloseable
 			if ( VRSystem.VRSystem_IsTrackedDeviceConnected( ic )==true )
 			{
 				int trackedDeviceClass = VRSystem.VRSystem_GetTrackedDeviceClass( ic );
-				HelloOpenVR.log( String.format( "id=%d,trackedDeviceClass=%d",ic,trackedDeviceClass ) );
-				HelloOpenVR.log( "TrackingSystemName: " + VRSystem.VRSystem_GetStringTrackedDeviceProperty( ic,VR.ETrackedDeviceProperty_Prop_TrackingSystemName_String,peError ) );
-				HelloOpenVR.log( "ModeLabel: " + VRSystem.VRSystem_GetStringTrackedDeviceProperty( ic,VR.ETrackedDeviceProperty_Prop_ModeLabel_String,peError ) );
-				HelloOpenVR.log( "ModelNumber: " + VRSystem.VRSystem_GetStringTrackedDeviceProperty( ic,VR.ETrackedDeviceProperty_Prop_ModelNumber_String,peError ) );
+				HelloOpenVR.log( "id=%d,trackedDeviceClass=%d",ic,trackedDeviceClass );
+				HelloOpenVR.log( "TrackingSystemName(%s)",VRSystem.VRSystem_GetStringTrackedDeviceProperty( ic,VR.ETrackedDeviceProperty_Prop_TrackingSystemName_String,peError ) );
+				HelloOpenVR.log( "ModeLabel(%s)",VRSystem.VRSystem_GetStringTrackedDeviceProperty( ic,VR.ETrackedDeviceProperty_Prop_ModeLabel_String,peError ) );
+				HelloOpenVR.log( "ModelNumber(%s)",VRSystem.VRSystem_GetStringTrackedDeviceProperty( ic,VR.ETrackedDeviceProperty_Prop_ModelNumber_String,peError ) );
 
 				if ( trackedDeviceClass==VR.ETrackedDeviceClass_TrackedDeviceClass_TrackingReference )
 					countBaseStations++;
@@ -100,7 +137,7 @@ public class ManagerOpenVR implements AutoCloseable
 				createDevice( ic );
 			}
 		}
-		HelloOpenVR.log( String.format( "countBaseStations=%d",countBaseStations ) );
+		HelloOpenVR.log( "countBaseStations=%d",countBaseStations );
 
 		IntBuffer w = stack.mallocInt( 1 );
 		IntBuffer h = stack.mallocInt( 1 );
@@ -128,6 +165,7 @@ public class ManagerOpenVR implements AutoCloseable
 			type = VRDeviceType.Generic;
 			break;
 		default:
+			HelloOpenVR.log( "createDevice ??? deviceClass(%d)",deviceClass );
 			return;
 		}
 
@@ -147,12 +185,21 @@ public class ManagerOpenVR implements AutoCloseable
 		}
 
 		devices[index] = new VRDevice( devicePoses[index],type,role );
-		devices[index].updateAxesAndPosition();
+//		devices[index].updateAxesAndPosition();
 	}
 
 	public void pollEvents()
 	{
-		boolean bHasNext = VRSystem.VRSystem_PollNextEvent( this.event );
+		while ( true )
+		{
+			boolean bHasNext = VRSystem.VRSystem_PollNextEvent( this.event );
+			if ( bHasNext==false )
+				break;
+
+			int eventType = this.event.eventType();
+			int trackedDeviceIndex = this.event.trackedDeviceIndex();
+			HelloOpenVR.log( "event eventType(%d) trackedDeviceIndex(%d)",eventType,trackedDeviceIndex );
+		}
 	}
 
 	@Override
@@ -190,5 +237,32 @@ public class ManagerOpenVR implements AutoCloseable
 			if ( dev!=null && dev.getType()==type ) return dev;
 		}
 		return null;
+	}
+
+	public void handleInputs()
+	{
+		VRInput.VRInput_UpdateActionState( mallocActionSet,1 );
+
+		VRInput.VRInput_GetDigitalActionData( pHandleAction1.get( 0 ),pAction1Data,VR.k_ulInvalidInputValueHandle );
+		HelloOpenVR.log( "pAction1Data active(%b) state(%b)",pAction1Data.bActive(),pAction1Data.bState() );
+
+		VRCompositor.VRCompositor_WaitGetPoses( pRenderPoseArray,null );
+		for ( int ic=0; ic<VR.k_unMaxTrackedDeviceCount; ic++ )
+		{
+			TrackedDevicePose pose = pRenderPoseArray.get( ic );
+			if ( pose.bPoseIsValid()==true )
+			{
+				pose.mDeviceToAbsoluteTracking( poseHmdMatrix34 );
+
+				FloatBuffer floatBuffer = poseHmdMatrix34.m();
+//				poseHmdMatrix34FloatBuffer.reset();
+//				poseHmdMatrix34.m( poseHmdMatrix34FloatBuffer );
+//				float[] array = poseHmdMatrix34FloatBuffer.array();
+
+				float[] array = new float[12];
+				floatBuffer.get( array );
+				HelloOpenVR.log( "pose (%d) (%s)",ic,Arrays.toString( array ) );
+			}
+		}
 	}
 }

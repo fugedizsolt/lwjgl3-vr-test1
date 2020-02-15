@@ -13,26 +13,25 @@ public class HelloOpenVR
 
 	private HelloOpenVR() throws Exception
 	{
+		Path pathStop = Paths.get( "stop.dat" );
+		if ( Files.exists( pathStop )==true )
+			Files.delete( pathStop );
+
 		try ( ManagerOpenVR movr = new ManagerOpenVR() )
 		{
-			movr.listDevices();
-
-			Path pathStop = Paths.get( "stop.dat" );
 			while ( true )
 			{
 				if ( Files.exists( pathStop )==true )
-				{
-					Files.delete( pathStop );
 					break;
-				}
 
 				movr.pollEvents();
+				movr.handleInputs();
 			}
 		}
 	}
 
-	public static void log( String msg )
+	public static void log( String msg,Object ... args )
 	{
-		System.out.println( msg );
+		System.out.println( String.format( msg,args ) );
 	}
 }

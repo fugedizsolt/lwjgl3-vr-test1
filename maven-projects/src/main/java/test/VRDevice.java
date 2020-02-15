@@ -22,5 +22,4 @@ public class VRDevice
 	public void updateAxesAndPosition()
 	{
 	}
-
 }

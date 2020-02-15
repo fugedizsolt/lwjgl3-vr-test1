@@ -188,5 +188,9 @@
 	- nem tudom, miért gyorsul fel a forgás a gl03\MultisampledFbo2Demo.java prg-ben...
 		- nagyon bosszant
 
+20200215:
+	- próbáltam az eredeti openvr sample.cpp alapján készíteni egy olyen prg-t, amely kiírja a hmd és kontrollerek pozícióját
+		- openvr-myhellovr\my-openvr-samples\openvr-sample-orig\src\hellovr_opengl_main.cpp
+		- mindig csupa 0 array-t ad vissza
 
 x
