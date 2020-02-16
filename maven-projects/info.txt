@@ -203,5 +203,11 @@
 
 20200216:
 	- letisztáztam és készítettem a testvr01 package-ben test prgt, amely tisztán csak a kapcsolatot hozza létre és ellenőrzi a gombokat, kírja a mátrixokat
+	- készítek egy testvr02 prg-t, amely opengl-el csak framebuffer-eket renderelve a hmd-re a 2 szemre azonos képeket tesz ki
+		- https://stackoverflow.com/questions/2602013/read-whole-ascii-file-into-c-stdstring
+	- c++ readFileAsString
+		- ifstream autoclose open file
+			- http://www.cplusplus.com/reference/fstream/ifstream/close/
+
 
 x
