@@ -201,5 +201,7 @@
 			- ebben ugyanaz van implementálva, mint ebben a java prg-ben...
 			- kb 10 teljes óra munka van csak ebben a bug-ban...
 
+20200216:
+	- letisztáztam és készítettem a testvr01 package-ben test prgt, amely tisztán csak a kapcsolatot hozza létre és ellenőrzi a gombokat, kírja a mátrixokat
 
 x
