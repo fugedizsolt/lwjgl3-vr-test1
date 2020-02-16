@@ -1,24 +1,21 @@
 package testvr02;
 
-import java.nio.FloatBuffer;
+import static org.lwjgl.opengl.GL11.glFlush;
+
 import java.nio.IntBuffer;
 import java.nio.LongBuffer;
 import java.nio.file.Paths;
-import java.util.Arrays;
 
-import org.lwjgl.openvr.HmdMatrix34;
 import org.lwjgl.openvr.InputDigitalActionData;
 import org.lwjgl.openvr.OpenVR;
 import org.lwjgl.openvr.Texture;
 import org.lwjgl.openvr.TrackedDevicePose;
 import org.lwjgl.openvr.VR;
 import org.lwjgl.openvr.VRActiveActionSet;
-import org.lwjgl.openvr.VRActiveActionSet.Buffer;
 import org.lwjgl.openvr.VRCompositor;
 import org.lwjgl.openvr.VREvent;
 import org.lwjgl.openvr.VRInput;
 import org.lwjgl.openvr.VRSystem;
-import org.lwjgl.openvr.VRTextureBounds;
 import org.lwjgl.system.MemoryStack;
 import org.lwjgl.system.MemoryUtil;
 
@@ -41,9 +38,12 @@ public class ManagerOpenVR implements AutoCloseable
 	private final LongBuffer pHandleActionsDemo = MemoryUtil.memAllocLong( 1 );
 	private final InputDigitalActionData pAction1Data = InputDigitalActionData.create();
 	private final TrackedDevicePose.Buffer pRenderPoseArray = TrackedDevicePose.create( VR.k_unMaxTrackedDeviceCount );
+	private final org.lwjgl.openvr.VRActiveActionSet.Buffer actionSetDemo = VRActiveActionSet.create( 1 );
+	private final org.lwjgl.openvr.Texture leftEyeTexture = Texture.create();
+	private final org.lwjgl.openvr.Texture rightEyeTexture = Texture.create();
 	private int vrrc;	// return code from VR func
 	private long vrHandle;	// handle from VR func
-	private Buffer actionSetDemo = null;
+	
 //	private ByteBuffer memForActionSetDemo = MemoryUtil.memAlloc( VRActiveActionSet.SIZEOF );
 
 	private int renderWidth = 0;
@@ -55,11 +55,8 @@ public class ManagerOpenVR implements AutoCloseable
 		try ( MemoryStack stack = MemoryStack.stackPush() )
 		{
 			this.event = VREvent.create();
-
 			this.openVRtoken = createOpenVR( stack );
-
 			listDevices( stack );
-
 			initVRInput();
 		}
 	}
@@ -184,13 +181,12 @@ public class ManagerOpenVR implements AutoCloseable
 		vrHandle = pHandleActionsDemo.get( 0 );
 			HelloOpenVR.log( "VRInput_GetActionSetHandle rc=%d vrHandle=%d",vrrc,vrHandle );
 
-		actionSetDemo = VRActiveActionSet.create( 1 );
 		actionSetDemo.ulActionSet( vrHandle );
 //		long memAddress2 = MemoryUtil.memAddress( actionSetDemo );
 //		HelloOpenVR.log( "VRActiveActionSet memAddress2=%d",memAddress2 );
 	}
 
-	public void handleInputs() throws InterruptedException
+	public void handleInputs()
 	{
 		vrrc = VRInput.VRInput_UpdateActionState( actionSetDemo,VRActiveActionSet.SIZEOF );
 			HelloOpenVR.log( "VRInput_UpdateActionState rc=%d",vrrc );
@@ -199,14 +195,14 @@ public class ManagerOpenVR implements AutoCloseable
 			HelloOpenVR.log( "pAction1Data rc=%d active(%b) state(%b)",vrrc,pAction1Data.bActive(),pAction1Data.bState() );
 
 		VRCompositor.VRCompositor_WaitGetPoses( pRenderPoseArray,null );
-		for ( int ic=0; ic<VR.k_unMaxTrackedDeviceCount; ic++ )
+//		for ( int ic=0; ic<VR.k_unMaxTrackedDeviceCount; ic++ )
 		{
-			TrackedDevicePose pose = pRenderPoseArray.get( ic );
-			if ( pose.bPoseIsValid()==true )
+//			TrackedDevicePose pose = pRenderPoseArray.get( ic );
+//			if ( pose.bPoseIsValid()==true )
 			{
 //				int eTrackingResult = pose.eTrackingResult();	// mindig 200
-				HmdMatrix34 hmdMatrix34 = pose.mDeviceToAbsoluteTracking();
-				FloatBuffer floatBuffer = hmdMatrix34.m();
+//				HmdMatrix34 hmdMatrix34 = pose.mDeviceToAbsoluteTracking();
+//				FloatBuffer floatBuffer = hmdMatrix34.m();
 
 //				pose.mDeviceToAbsoluteTracking( poseHmdMatrix34 );
 //				FloatBuffer floatBuffer = poseHmdMatrix34.m();
@@ -214,12 +210,12 @@ public class ManagerOpenVR implements AutoCloseable
 //				poseHmdMatrix34.m( poseHmdMatrix34FloatBuffer );
 //				float[] array = poseHmdMatrix34FloatBuffer.array();
 
-				float[] array = new float[12];
-				floatBuffer.get( array );
-				HelloOpenVR.log( "pose (%d) (%s)",ic,Arrays.toString( array ) );
+//				float[] array = new float[12];
+//				floatBuffer.get( array );
+//				HelloOpenVR.log( "pose (%d) (%s)",ic,Arrays.toString( array ) );
 			}
 		}
-		Thread.sleep( 1000 );
+//		Thread.sleep( 1000 );
 	}
 
 	public int getRenderWidth()
@@ -231,16 +227,21 @@ public class ManagerOpenVR implements AutoCloseable
 		return renderHeight;
 	}
 
+	public void initVRTextures( FBOsForTwoEyes fbOsForTwoEyes )
+	{
+		leftEyeTexture.handle( fbOsForTwoEyes.getTextureIdEye1() );
+		leftEyeTexture.eType( VR.ETextureType_TextureType_OpenGL );
+		leftEyeTexture.eColorSpace( VR.EColorSpace_ColorSpace_Gamma );
+
+		rightEyeTexture.handle( fbOsForTwoEyes.getTextureIdEye1() );
+		rightEyeTexture.eType( VR.ETextureType_TextureType_OpenGL );
+		rightEyeTexture.eColorSpace( VR.EColorSpace_ColorSpace_Gamma );
+	}
+
 	public void copyFrameBuffersToHMD()
 	{
-		int eEye = 0;
-		Texture pTexture = null;
-		VRTextureBounds pBounds = null;
-		int nSubmitFlags = 0;
-		VRCompositor.VRCompositor_Submit( eEye,pTexture,pBounds,nSubmitFlags );
-//		vr::Texture_t leftEyeTexture = {(void*)(uintptr_t)leftEyeDesc.m_nResolveTextureId, vr::TextureType_OpenGL, vr::ColorSpace_Gamma };
-//		VRCompositor.Submit(vr::Eye_Left, &leftEyeTexture );
-//		vr::Texture_t rightEyeTexture = {(void*)(uintptr_t)rightEyeDesc.m_nResolveTextureId, vr::TextureType_OpenGL, vr::ColorSpace_Gamma };
-//		VRCompositor.Submit(vr::Eye_Right, &rightEyeTexture );
+		VRCompositor.VRCompositor_Submit( VR.EVREye_Eye_Left,leftEyeTexture,null,VR.EVRSubmitFlags_Submit_Default );
+		VRCompositor.VRCompositor_Submit( VR.EVREye_Eye_Right,rightEyeTexture,null,VR.EVRSubmitFlags_Submit_Default );
+		glFlush();	// ez kell ide a doksi szerint
 	}
 }

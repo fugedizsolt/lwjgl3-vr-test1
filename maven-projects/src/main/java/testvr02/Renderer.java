@@ -220,4 +220,9 @@ public class Renderer
 		if ( fbo!=null )
 			fbo.cleanUp();
 	}
+
+	public FBOsForTwoEyes getFbo()
+	{
+		return fbo;
+	}
 }

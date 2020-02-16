@@ -5,8 +5,6 @@ import java.nio.file.Path;
 import java.nio.file.Paths;
 
 import org.lwjgl.opengl.GL;
-import org.lwjgl.opengl.GLUtil;
-import org.lwjgl.system.Callback;
 
 
 public class HelloOpenVR
@@ -22,29 +20,24 @@ public class HelloOpenVR
 		if ( Files.exists( pathStop )==true )
 			Files.delete( pathStop );
 
-		try ( ManagerOpenVR movr = new ManagerOpenVR() )
+		try ( ManagerGLFW mglfw = new ManagerGLFW() )
 		{
 			GL.createCapabilities();
-			Renderer renderer = new Renderer();
-			try
-			{
-				renderer.init( movr.getRenderWidth(),movr.getRenderHeight() );
 
-				while ( true )
+			try ( ManagerOpenVR movr = new ManagerOpenVR() )
+			{
+				Renderer renderer = new Renderer();
+				try
 				{
-					if ( Files.exists( pathStop )==true )
-						break;
+					renderer.init( movr.getRenderWidth(),movr.getRenderHeight() );
+					movr.initVRTextures( renderer.getFbo() );
 
-					movr.pollEvents();
-					movr.handleInputs();
-
-					renderer.render();
-					movr.copyFrameBuffersToHMD();
+					mglfw.loop( pathStop,movr,renderer );
 				}
-			}
-			finally
-			{
-				renderer.cleanup();
+				finally
+				{
+					renderer.cleanup();
+				}
 			}
 		}
 	}
