@@ -3,8 +3,8 @@ package test;
 import java.nio.FloatBuffer;
 import java.nio.IntBuffer;
 import java.nio.LongBuffer;
+import java.nio.file.Paths;
 import java.util.Arrays;
-import java.util.Iterator;
 
 import org.joml.Matrix4f;
 import org.joml.Vector3f;
@@ -20,6 +20,7 @@ import org.lwjgl.openvr.VREvent;
 import org.lwjgl.openvr.VRInput;
 import org.lwjgl.openvr.VRSystem;
 import org.lwjgl.system.MemoryStack;
+import org.lwjgl.system.MemoryUtil;
 
 
 public class ManagerOpenVR implements AutoCloseable
@@ -37,13 +38,15 @@ public class ManagerOpenVR implements AutoCloseable
 	private final Vector3f trackerSpaceOriginToWorldSpaceTranslationOffset = new Vector3f();
 	private final Matrix4f trackerSpaceToWorldspaceRotationOffset = new Matrix4f();
 
-	private final LongBuffer pHandleAction1 = LongBuffer.allocate( 1 );
-	private final LongBuffer pHandleActionsDemo = LongBuffer.allocate( 1 );
-	private final Buffer mallocActionSet = VRActiveActionSet.create( 1 );
+	private final LongBuffer pHandleAction1 = MemoryUtil.memAllocLong( 1 );
+	private final LongBuffer pHandleActionsDemo = MemoryUtil.memAllocLong( 1 );
 	private final InputDigitalActionData pAction1Data = InputDigitalActionData.create();
 	private final TrackedDevicePose.Buffer pRenderPoseArray = TrackedDevicePose.create( VR.k_unMaxTrackedDeviceCount );
 	private final HmdMatrix34 poseHmdMatrix34 = HmdMatrix34.create();
 	private final FloatBuffer poseHmdMatrix34FloatBuffer = FloatBuffer.allocate( 12 );
+	private Buffer actionSetDemo = null;
+	private int vrrc;	// return code from VR func
+	private long vrHandle;	// handle from VR func
 
 
 
@@ -67,16 +70,6 @@ public class ManagerOpenVR implements AutoCloseable
 			this.stack.close();
 			throw exc;
 		}
-	}
-
-	private void initVRInput()
-	{
-		CharSequence pchActionManifestPath = new String( HELLOVR_ACTIONS_JSON );
-		VRInput.VRInput_SetActionManifestPath( pchActionManifestPath );
-
-		VRInput.VRInput_GetActionHandle( ACTIONS_DEMO_IN_HIDE_CUBES,pHandleAction1 );
-		VRInput.VRInput_GetActionSetHandle( ACTIONS_DEMO,pHandleActionsDemo );
-		mallocActionSet.ulActionSet( pHandleActionsDemo.get( 0 ) );
 	}
 
 	private int createOpenVR()
@@ -198,7 +191,7 @@ public class ManagerOpenVR implements AutoCloseable
 
 			int eventType = this.event.eventType();
 			int trackedDeviceIndex = this.event.trackedDeviceIndex();
-			HelloOpenVR.log( "event eventType(%d) trackedDeviceIndex(%d)",eventType,trackedDeviceIndex );
+			HelloOpenVR.log( "event trackedDeviceIndex(\t%03d) eventType(%d)",trackedDeviceIndex,eventType );
 		}
 	}
 
@@ -239,12 +232,37 @@ public class ManagerOpenVR implements AutoCloseable
 		return null;
 	}
 
-	public void handleInputs()
+	private void initVRInput()
 	{
-		VRInput.VRInput_UpdateActionState( mallocActionSet,1 );
+		vrrc = VRInput.VRInput_SetActionManifestPath( Paths.get( HELLOVR_ACTIONS_JSON ).toAbsolutePath().toString() );
+			HelloOpenVR.log( "VRInput_SetActionManifestPath rc=%d",vrrc );
 
-		VRInput.VRInput_GetDigitalActionData( pHandleAction1.get( 0 ),pAction1Data,VR.k_ulInvalidInputValueHandle );
-		HelloOpenVR.log( "pAction1Data active(%b) state(%b)",pAction1Data.bActive(),pAction1Data.bState() );
+//		long[] tmpArray1 = new long[]{ 0 };
+//		LongBuffer tmpLongBuffer1 = LongBuffer.wrap( tmpArray1 );
+//		long memAddress1 = MemoryUtil.memAddress( tmpLongBuffer1 );
+//		LongBuffer tmpLongBuffer2 = MemoryUtil.memAllocLong( 1 );
+//		long memAddress2 = MemoryUtil.memAddress( tmpLongBuffer2 );
+//		HelloOpenVR.log( "memAddress1=%d memAddress2=%d",memAddress1,memAddress2 ); // az első mindig 0, a 2. OK :)
+
+		vrrc = VRInput.VRInput_GetActionHandle( ACTIONS_DEMO_IN_HIDE_CUBES,pHandleAction1 );
+		vrHandle = pHandleAction1.get( 0 );
+			HelloOpenVR.log( "VRInput_GetActionHandle rc=%d vrHandle=%d",vrrc,vrHandle );
+
+		vrrc = VRInput.VRInput_GetActionSetHandle( ACTIONS_DEMO,pHandleActionsDemo );
+		vrHandle = pHandleActionsDemo.get( 0 );
+			HelloOpenVR.log( "VRInput_GetActionSetHandle rc=%d vrHandle=%d",vrrc,vrHandle );
+
+		Buffer actionSet1 = VRActiveActionSet.create( 1 );
+		actionSetDemo = actionSet1.ulActionSet( vrHandle );
+	}
+
+	public void handleInputs() throws InterruptedException
+	{
+		vrrc = VRInput.VRInput_UpdateActionState( actionSetDemo,1 );
+			HelloOpenVR.log( "VRInput_UpdateActionState rc=%d",vrrc );
+
+		vrrc = VRInput.VRInput_GetDigitalActionData( pHandleAction1.get( 0 ),pAction1Data,VR.k_ulInvalidInputValueHandle );
+			HelloOpenVR.log( "pAction1Data rc=%d active(%b) state(%b)",vrrc,pAction1Data.bActive(),pAction1Data.bState() );
 
 		VRCompositor.VRCompositor_WaitGetPoses( pRenderPoseArray,null );
 		for ( int ic=0; ic<VR.k_unMaxTrackedDeviceCount; ic++ )
@@ -252,9 +270,12 @@ public class ManagerOpenVR implements AutoCloseable
 			TrackedDevicePose pose = pRenderPoseArray.get( ic );
 			if ( pose.bPoseIsValid()==true )
 			{
-				pose.mDeviceToAbsoluteTracking( poseHmdMatrix34 );
+//				int eTrackingResult = pose.eTrackingResult();	// mindig 200
+				HmdMatrix34 hmdMatrix34 = pose.mDeviceToAbsoluteTracking();
+				FloatBuffer floatBuffer = hmdMatrix34.m();
 
-				FloatBuffer floatBuffer = poseHmdMatrix34.m();
+//				pose.mDeviceToAbsoluteTracking( poseHmdMatrix34 );
+//				FloatBuffer floatBuffer = poseHmdMatrix34.m();
 //				poseHmdMatrix34FloatBuffer.reset();
 //				poseHmdMatrix34.m( poseHmdMatrix34FloatBuffer );
 //				float[] array = poseHmdMatrix34FloatBuffer.array();
@@ -264,5 +285,6 @@ public class ManagerOpenVR implements AutoCloseable
 				HelloOpenVR.log( "pose (%d) (%s)",ic,Arrays.toString( array ) );
 			}
 		}
+		Thread.sleep( 1000 );
 	}
 }
