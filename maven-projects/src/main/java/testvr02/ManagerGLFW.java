@@ -85,11 +85,18 @@ public class ManagerGLFW implements AutoCloseable
 			movr.pollEvents();
 			movr.handleInputs();
 
-			renderer.render();
+			renderer.render( movr.getAllTransformMatrixEyeLeft(),movr.getAllTransformMatrixEyeRight() );
 			movr.copyFrameBuffersToHMD();
-			Thread.sleep( 1 );
+
+			glFinish();
+//			Thread.sleep( 1 );
 
 			glfwSwapBuffers( windowHandle ); // swap the color buffers
+
+			glClearColor( 0,0,0,1 );
+			glClear( GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT );
+			glFlush();	// ez kell ide a doksi szerint
+			glFinish();
 
 			// Poll for window events. The key callback above will only be
 			// invoked during this call.

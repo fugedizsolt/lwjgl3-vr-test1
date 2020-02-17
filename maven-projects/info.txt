@@ -208,6 +208,9 @@
 	- c++ readFileAsString
 		- ifstream autoclose open file
 			- http://www.cplusplus.com/reference/fstream/ifstream/close/
+	- elvileg készen lenne a hmd renderelés, de a hmd-ben csak szürkeség látszik...
+		- tesztelni kell, mit rontottam el... megint rohadt sok szívás lesz...
+		- meg kell nézni, mi a projekciós mátrix, milyen koordináták lehetnek a screen-en... kiírni pontokat... rengeteg teszt
 
 
 x

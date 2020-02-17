@@ -1,11 +1,12 @@
 package testvr02;
 
-import static org.lwjgl.opengl.GL11.glFlush;
-
 import java.nio.IntBuffer;
 import java.nio.LongBuffer;
 import java.nio.file.Paths;
 
+import org.joml.Matrix4f;
+import org.lwjgl.openvr.HmdMatrix34;
+import org.lwjgl.openvr.HmdMatrix44;
 import org.lwjgl.openvr.InputDigitalActionData;
 import org.lwjgl.openvr.OpenVR;
 import org.lwjgl.openvr.Texture;
@@ -43,7 +44,19 @@ public class ManagerOpenVR implements AutoCloseable
 	private final org.lwjgl.openvr.Texture rightEyeTexture = Texture.create();
 	private int vrrc;	// return code from VR func
 	private long vrHandle;	// handle from VR func
-	
+//	private Matrix4f projectionMatrixLeft = null;
+//	private Matrix4f projectionMatrixRight = null;
+//	private Matrix4f eyeToHeadTransformLeft = null;
+//	private Matrix4f eyeToHeadTransformRight = null;
+	private Matrix4f projectionMatrixWitEyeToHeadTransformLeft = null;
+	private Matrix4f projectionMatrixWitEyeToHeadTransformRight = null;
+	private Matrix4f hmdPose = new Matrix4f();
+	private Matrix4f allTransformMatrixLeft = new Matrix4f();
+	private Matrix4f allTransformMatrixRight = new Matrix4f();
+
+	private float[] arrayToConvHmdMatrices = new float[16];
+	private float[] arrayToConvHmd34Matrices = new float[12];
+
 //	private ByteBuffer memForActionSetDemo = MemoryUtil.memAlloc( VRActiveActionSet.SIZEOF );
 
 	private int renderWidth = 0;
@@ -58,6 +71,7 @@ public class ManagerOpenVR implements AutoCloseable
 			this.openVRtoken = createOpenVR( stack );
 			listDevices( stack );
 			initVRInput();
+			initVRMatrices( stack );
 		}
 	}
 
@@ -189,12 +203,25 @@ public class ManagerOpenVR implements AutoCloseable
 	public void handleInputs()
 	{
 		vrrc = VRInput.VRInput_UpdateActionState( actionSetDemo,VRActiveActionSet.SIZEOF );
-			HelloOpenVR.log( "VRInput_UpdateActionState rc=%d",vrrc );
+//			HelloOpenVR.log( "VRInput_UpdateActionState rc=%d",vrrc );
 
 		vrrc = VRInput.VRInput_GetDigitalActionData( pHandleAction1.get( 0 ),pAction1Data,VR.k_ulInvalidInputValueHandle );
-			HelloOpenVR.log( "pAction1Data rc=%d active(%b) state(%b)",vrrc,pAction1Data.bActive(),pAction1Data.bState() );
+//			HelloOpenVR.log( "pAction1Data rc=%d active(%b) state(%b)",vrrc,pAction1Data.bActive(),pAction1Data.bState() );
 
 		VRCompositor.VRCompositor_WaitGetPoses( pRenderPoseArray,null );
+		TrackedDevicePose pose = pRenderPoseArray.get( VR.k_unTrackedDeviceIndex_Hmd );
+		if ( pose.bPoseIsValid()==true )
+		{
+			HmdMatrix34 matrix34 = pose.mDeviceToAbsoluteTracking();
+			matrix34.m().get( arrayToConvHmd34Matrices );
+			Matrix4f tmpMat = new Matrix4f( 
+					arrayToConvHmd34Matrices[0],arrayToConvHmd34Matrices[1],arrayToConvHmd34Matrices[2],0.0f,
+					arrayToConvHmd34Matrices[3],arrayToConvHmd34Matrices[4],arrayToConvHmd34Matrices[5],0.0f,
+					arrayToConvHmd34Matrices[6],arrayToConvHmd34Matrices[7],arrayToConvHmd34Matrices[8],0.0f,
+					arrayToConvHmd34Matrices[9],arrayToConvHmd34Matrices[10],arrayToConvHmd34Matrices[11],1.0f );
+			tmpMat.invert( hmdPose );
+		}
+
 //		for ( int ic=0; ic<VR.k_unMaxTrackedDeviceCount; ic++ )
 		{
 //			TrackedDevicePose pose = pRenderPoseArray.get( ic );
@@ -218,13 +245,41 @@ public class ManagerOpenVR implements AutoCloseable
 //		Thread.sleep( 1000 );
 	}
 
-	public int getRenderWidth()
+	private void initVRMatrices( MemoryStack stack )
 	{
-		return renderWidth;
+		HmdMatrix44 result44 = HmdMatrix44.mallocStack( stack );
+		this.projectionMatrixWitEyeToHeadTransformLeft = specProjectionMatrixM44ToM4f( result44,VR.EVREye_Eye_Left );
+		this.projectionMatrixWitEyeToHeadTransformRight = specProjectionMatrixM44ToM4f( result44,VR.EVREye_Eye_Right );
+
+		HmdMatrix34 result34 = HmdMatrix34.mallocStack( stack );
+		Matrix4f eyeToHeadTransformLeft = specEyeToHeadTransformM34ToM4fInv( result34,VR.EVREye_Eye_Left );
+		Matrix4f eyeToHeadTransformRight = specEyeToHeadTransformM34ToM4fInv( result34,VR.EVREye_Eye_Right );
+
+		this.projectionMatrixWitEyeToHeadTransformLeft.mul( eyeToHeadTransformLeft );
+		this.projectionMatrixWitEyeToHeadTransformRight.mul( eyeToHeadTransformRight );
 	}
-	public int getRenderHeight()
+
+	private Matrix4f specProjectionMatrixM44ToM4f( HmdMatrix44 result,int indexEye )
 	{
-		return renderHeight;
+		HmdMatrix44 matrix44 = VRSystem.VRSystem_GetProjectionMatrix( indexEye,Renderer.Z_NEAR,Renderer.Z_FAR,result );
+		matrix44.m().get( arrayToConvHmdMatrices );
+		return new Matrix4f( 
+				arrayToConvHmdMatrices[0],arrayToConvHmdMatrices[1],arrayToConvHmdMatrices[2],arrayToConvHmdMatrices[3],
+				arrayToConvHmdMatrices[4],arrayToConvHmdMatrices[5],arrayToConvHmdMatrices[6],arrayToConvHmdMatrices[7],
+				arrayToConvHmdMatrices[8],arrayToConvHmdMatrices[9],arrayToConvHmdMatrices[10],arrayToConvHmdMatrices[11],
+				arrayToConvHmdMatrices[12],arrayToConvHmdMatrices[13],arrayToConvHmdMatrices[14],arrayToConvHmdMatrices[15] );
+	}
+
+	private Matrix4f specEyeToHeadTransformM34ToM4fInv( HmdMatrix34 result,int indexEye )
+	{
+		HmdMatrix34 matrix34 = VRSystem.VRSystem_GetEyeToHeadTransform( indexEye,result );
+		matrix34.m().get( arrayToConvHmd34Matrices );
+		Matrix4f tmpMat = new Matrix4f( 
+				arrayToConvHmd34Matrices[0],arrayToConvHmd34Matrices[1],arrayToConvHmd34Matrices[2],0.0f,
+				arrayToConvHmd34Matrices[3],arrayToConvHmd34Matrices[4],arrayToConvHmd34Matrices[5],0.0f,
+				arrayToConvHmd34Matrices[6],arrayToConvHmd34Matrices[7],arrayToConvHmd34Matrices[8],0.0f,
+				arrayToConvHmd34Matrices[9],arrayToConvHmd34Matrices[10],arrayToConvHmd34Matrices[11],1.0f );
+		return tmpMat.invert();
 	}
 
 	public void initVRTextures( FBOsForTwoEyes fbOsForTwoEyes )
@@ -242,6 +297,36 @@ public class ManagerOpenVR implements AutoCloseable
 	{
 		VRCompositor.VRCompositor_Submit( VR.EVREye_Eye_Left,leftEyeTexture,null,VR.EVRSubmitFlags_Submit_Default );
 		VRCompositor.VRCompositor_Submit( VR.EVREye_Eye_Right,rightEyeTexture,null,VR.EVRSubmitFlags_Submit_Default );
-		glFlush();	// ez kell ide a doksi szerint
+	}
+
+	public int getRenderWidth()
+	{
+		return renderWidth;
+	}
+	public int getRenderHeight()
+	{
+		return renderHeight;
+	}
+	public Matrix4f getProjectionMatrixWitEyeToHeadTransformLeft()
+	{
+		return projectionMatrixWitEyeToHeadTransformLeft;
+	}
+	public Matrix4f getProjectionMatrixWitEyeToHeadTransformRight()
+	{
+		return projectionMatrixWitEyeToHeadTransformRight;
+	}
+	public Matrix4f getHmdPose()
+	{
+		return hmdPose;
+	}
+	public Matrix4f getAllTransformMatrixEyeLeft()
+	{
+		projectionMatrixWitEyeToHeadTransformLeft.mul( hmdPose,allTransformMatrixLeft );
+		return allTransformMatrixLeft;
+	}
+	public Matrix4f getAllTransformMatrixEyeRight()
+	{
+		projectionMatrixWitEyeToHeadTransformRight.mul( hmdPose,allTransformMatrixRight );
+		return allTransformMatrixRight;
 	}
 }

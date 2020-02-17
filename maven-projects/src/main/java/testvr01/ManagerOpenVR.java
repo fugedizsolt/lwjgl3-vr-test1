@@ -1,12 +1,13 @@
 package testvr01;
 
-import java.nio.FloatBuffer;
 import java.nio.IntBuffer;
 import java.nio.LongBuffer;
 import java.nio.file.Paths;
 import java.util.Arrays;
 
+import org.joml.Matrix4f;
 import org.lwjgl.openvr.HmdMatrix34;
+import org.lwjgl.openvr.HmdMatrix44;
 import org.lwjgl.openvr.InputDigitalActionData;
 import org.lwjgl.openvr.OpenVR;
 import org.lwjgl.openvr.TrackedDevicePose;
@@ -19,6 +20,8 @@ import org.lwjgl.openvr.VRInput;
 import org.lwjgl.openvr.VRSystem;
 import org.lwjgl.system.MemoryStack;
 import org.lwjgl.system.MemoryUtil;
+
+import testvr02.Renderer;
 
 
 public class ManagerOpenVR implements AutoCloseable
@@ -43,6 +46,10 @@ public class ManagerOpenVR implements AutoCloseable
 	private long vrHandle;	// handle from VR func
 	private Buffer actionSetDemo = null;
 //	private ByteBuffer memForActionSetDemo = MemoryUtil.memAlloc( VRActiveActionSet.SIZEOF );
+	private Matrix4f projectionMatrixLeft = null;
+	private Matrix4f projectionMatrixRight = null;
+	private float[] arrayToConvHmdMatrices = new float[16];
+	private float[] arrayToConvHmd34Matrices = new float[12];
 
 
 	public ManagerOpenVR()
@@ -50,12 +57,10 @@ public class ManagerOpenVR implements AutoCloseable
 		try ( MemoryStack stack = MemoryStack.stackPush() )
 		{
 			this.event = VREvent.create();
-
 			this.openVRtoken = createOpenVR( stack );
-
 			listDevices( stack );
-
 			initVRInput();
+			initVRMatrices( stack );
 		}
 	}
 
@@ -183,6 +188,50 @@ public class ManagerOpenVR implements AutoCloseable
 //		HelloOpenVR.log( "VRActiveActionSet memAddress2=%d",memAddress2 );
 	}
 
+	private void initVRMatrices( MemoryStack stack )
+	{
+		HmdMatrix44 result = HmdMatrix44.mallocStack( stack );
+		this.projectionMatrixLeft = specM44ToM4f( result,VR.EVREye_Eye_Left );
+		this.projectionMatrixRight = specM44ToM4f( result,VR.EVREye_Eye_Right );
+
+		HelloOpenVR.log( "projectionMatrixLeftX(%s)",this.projectionMatrixLeft.toString() );
+		HelloOpenVR.log( "projectionMatrixRightX(%s)",this.projectionMatrixRight.toString() );
+//		Matrix4f tmpMat4f = new Matrix4f();
+//		convertSteamVRMatrix4ToMatrix4f( projectionHMDMatrixL,tmpMat4f );
+//		HelloOpenVR.log( "projectionMatrixLeft2(%s)",tmpMat4f.toString() );
+
+//		HmdMatrix44 resultRight = HmdMatrix44.mallocStack( stack );
+//		HmdMatrix44 projectionHMDMatrixR = VRSystem.VRSystem_GetProjectionMatrix( VR.EVREye_Eye_Right,Renderer.Z_NEAR,Renderer.Z_FAR,result );
+//		this.projectionMatrixRight = new Matrix4f( projectionHMDMatrixR.m() );
+//		HelloOpenVR.log( "projectionMatrixRight(%s)",this.projectionMatrixRight.toString() );
+	}
+
+	private Matrix4f specM44ToM4f( HmdMatrix44 result,int indexEye )
+	{
+		HmdMatrix44 projectionHMDMatrixL = VRSystem.VRSystem_GetProjectionMatrix( indexEye,Renderer.Z_NEAR,Renderer.Z_FAR,result );
+		projectionHMDMatrixL.m().get( arrayToConvHmdMatrices );
+		return new Matrix4f( 
+				arrayToConvHmdMatrices[0],arrayToConvHmdMatrices[1],arrayToConvHmdMatrices[2],arrayToConvHmdMatrices[3],
+				arrayToConvHmdMatrices[4],arrayToConvHmdMatrices[5],arrayToConvHmdMatrices[6],arrayToConvHmdMatrices[7],
+				arrayToConvHmdMatrices[8],arrayToConvHmdMatrices[9],arrayToConvHmdMatrices[10],arrayToConvHmdMatrices[11],
+				arrayToConvHmdMatrices[12],arrayToConvHmdMatrices[13],arrayToConvHmdMatrices[14],arrayToConvHmdMatrices[15] );
+	}
+
+	public static void convertSteamVRMatrix4ToMatrix4f( float[] array,Matrix4f mat )
+	{
+		mat.set( array[0],array[1],array[2],array[3],
+				array[4],array[5],array[6],array[7],
+				array[8],array[9],array[10],array[11],
+				array[12],array[13],array[14],array[15] );
+	}
+
+	// ez az fgv ugyanazt adja, mint a FloatBuffer-es 
+	public static Matrix4f convertSteamVRMatrix4ToMatrix4f( HmdMatrix44 hmdMatrix,Matrix4f mat )
+	{
+		mat.set( hmdMatrix.m( 0 ),hmdMatrix.m( 1 ),hmdMatrix.m( 2 ),hmdMatrix.m( 3 ),hmdMatrix.m( 4 ),hmdMatrix.m( 5 ),hmdMatrix.m( 6 ),hmdMatrix.m( 7 ),hmdMatrix.m( 8 ),hmdMatrix.m( 9 ),hmdMatrix.m( 10 ),hmdMatrix.m( 11 ),hmdMatrix.m( 12 ),hmdMatrix.m( 13 ),hmdMatrix.m( 14 ),hmdMatrix.m( 15 ) );
+		return mat;
+	}
+
 	public void handleInputs() throws InterruptedException
 	{
 		vrrc = VRInput.VRInput_UpdateActionState( actionSetDemo,VRActiveActionSet.SIZEOF );
@@ -199,7 +248,13 @@ public class ManagerOpenVR implements AutoCloseable
 			{
 //				int eTrackingResult = pose.eTrackingResult();	// mindig 200
 				HmdMatrix34 hmdMatrix34 = pose.mDeviceToAbsoluteTracking();
-				FloatBuffer floatBuffer = hmdMatrix34.m();
+				hmdMatrix34.m().get( arrayToConvHmd34Matrices );
+				Matrix4f tmpMat = new Matrix4f( 
+						arrayToConvHmd34Matrices[0],arrayToConvHmd34Matrices[1],arrayToConvHmd34Matrices[2],0.0f,
+						arrayToConvHmd34Matrices[3],arrayToConvHmd34Matrices[4],arrayToConvHmd34Matrices[5],0.0f,
+						arrayToConvHmd34Matrices[6],arrayToConvHmd34Matrices[7],arrayToConvHmd34Matrices[8],0.0f,
+						arrayToConvHmd34Matrices[9],arrayToConvHmd34Matrices[10],arrayToConvHmd34Matrices[11],1.0f );
+				tmpMat.invert();
 
 //				pose.mDeviceToAbsoluteTracking( poseHmdMatrix34 );
 //				FloatBuffer floatBuffer = poseHmdMatrix34.m();
@@ -207,9 +262,9 @@ public class ManagerOpenVR implements AutoCloseable
 //				poseHmdMatrix34.m( poseHmdMatrix34FloatBuffer );
 //				float[] array = poseHmdMatrix34FloatBuffer.array();
 
-				float[] array = new float[12];
-				floatBuffer.get( array );
-				HelloOpenVR.log( "pose (%d) (%s)",ic,Arrays.toString( array ) );
+//				float[] array = new float[12];
+//				floatBuffer.get( array );
+				HelloOpenVR.log( "pose (%d) (%s)",ic,Arrays.toString( arrayToConvHmd34Matrices ) );
 			}
 		}
 		Thread.sleep( 1000 );

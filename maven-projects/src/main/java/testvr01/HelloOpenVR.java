@@ -19,7 +19,7 @@ public class HelloOpenVR
 
 		try ( ManagerOpenVR movr = new ManagerOpenVR() )
 		{
-			while ( true )
+			for ( int ic=0; ic<2; ic++ )
 			{
 				if ( Files.exists( pathStop )==true )
 					break;
