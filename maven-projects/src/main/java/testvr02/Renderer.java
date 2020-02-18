@@ -22,6 +22,7 @@ import static org.lwjgl.opengl.GL13.GL_MULTISAMPLE;
 import static org.lwjgl.opengl.GL30.glBindVertexArray;
 
 import org.joml.Matrix4f;
+import org.joml.Vector4f;
 
 public class Renderer
 {
@@ -75,13 +76,13 @@ public class Renderer
 		{
 			float[] positionsInWorldSpace = new float[] 
 			{ 
-				0.0f, 0.0f, 0.0f,
-				2.0f, 0.0f, 0.0f,
-				0.0f, 1.0f, 0.0f,
+				0.0f, 0.0f, -3.0f,
+				2.0f, 0.0f, -3.0f,
+				0.0f, 1.0f, -3.0f,
 
-				1.0f, 0.0f, -1.0f,
-				3.0f, 0.0f, -1.0f,
-				1.0f, 1.0f, -1.0f,
+				1.0f, 0.0f, -4.0f,
+				3.0f, 0.0f, -4.0f,
+				1.0f, 1.0f, -4.0f,
 
 				-990.0f,   0.0f, -900.0f,
 				 900.0f,   0.0f, -900.0f,
@@ -142,6 +143,17 @@ public class Renderer
 	{
 		this.vrTransformMatrixEye1 = paramMatEye1;
 		this.vrTransformMatrixEye2 = paramMatEye2;
+
+		if ( ManagerGLFW.printCoords==true )
+		{
+			Vector4f vec = new Vector4f( 0.0f,1.0f,-2.0f,1.0f );
+			Vector4f vecEye1Result = new Vector4f();
+			Vector4f vecEye2Result = new Vector4f();
+			vec.mul( vrTransformMatrixEye1,vecEye1Result );
+			vec.mul( vrTransformMatrixEye2,vecEye2Result );
+			System.out.println( String.format( "vecEye1Result (%.5f,%.5f,%.5f)",vecEye1Result.x,vecEye1Result.y,vecEye1Result.z ) );
+			System.out.println( String.format( "vecEye2Result (%.5f,%.5f,%.5f)",vecEye2Result.x,vecEye2Result.y,vecEye2Result.z ) );
+		}
 
 		long currentRenderTimestamp = System.currentTimeMillis();
 		if ( prevRenderTimestamp>0 )

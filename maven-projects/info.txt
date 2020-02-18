@@ -212,5 +212,26 @@
 		- tesztelni kell, mit rontottam el... megint rohadt sok szívás lesz...
 		- meg kell nézni, mi a projekciós mátrix, milyen koordináták lehetnek a screen-en... kiírni pontokat... rengeteg teszt
 
+20200218:
+	- készítettem a cpp-s fit-emben egy openvr-sample-mod1 projektet
+		- https://github.com/fugedizsolt/openvr-myhellovr.git
+		- ennek az output-ját próbálom vizsgálni a java-s prg-vel
+	- az openvr-es sample prg-ben nagyon szép példa van arra, hogy a két eye texture-t hogyan tehetem fel a screen bufferre egyszerre egymás után 2 glDrawElemets fgv-vel :)
+	- csodálatos minimal cpp prg a GPU-ra felküldött 1 db háromszög rajzolásra!
+		- https://github.com/JoeyDeVries/LearnOpenGL.git
+		- Git\LearnOpenGL\src\1.getting_started\2.1.hello_triangle\hello_triangle.cpp
+			- ebben glDrawArrays
+		- Git\LearnOpenGL\src\1.getting_started\2.2.hello_triangle_indexed\hello_triangle_indexed.cpp
+			- ebben glDrawElements
+	- a mátrixok értékeit eddig rossz sorrendben olvastam be, javítva, DE
+		- most már megjelenik a kép, de elképesztően szaggat... szétesik...
+	- kikapcsoltam a vsync-et a glfw-ben, és kihagyom a "glfwSwapBuffers" fgv-t, ekkor kb 90 fps-t számolok...
+		- DE MÉG MINDIG SZÉTESIK A KÉP, és hibás a projekció...
+	- ÉÉÉÉSSSSS IGEEEEN!!!
+		- bug volt a prg-ben, ugyanazt a képet tettem mindkét szememre...
+		- "szemcsécs" a kép...
+		- kis fejmozgásnál van valami furcsa mozgása a képnek...
+		- nem működik a horizont... nagy távban nem renderelődik jól az obj
+
 
 x

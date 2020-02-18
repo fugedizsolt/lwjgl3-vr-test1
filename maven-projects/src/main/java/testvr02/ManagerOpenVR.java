@@ -214,12 +214,19 @@ public class ManagerOpenVR implements AutoCloseable
 		{
 			HmdMatrix34 matrix34 = pose.mDeviceToAbsoluteTracking();
 			matrix34.m().get( arrayToConvHmd34Matrices );
+//			Matrix4f tmpMat = new Matrix4f( 
+//					arrayToConvHmd34Matrices[0],arrayToConvHmd34Matrices[1],arrayToConvHmd34Matrices[2],0.0f,
+//					arrayToConvHmd34Matrices[3],arrayToConvHmd34Matrices[4],arrayToConvHmd34Matrices[5],0.0f,
+//					arrayToConvHmd34Matrices[6],arrayToConvHmd34Matrices[7],arrayToConvHmd34Matrices[8],0.0f,
+//					arrayToConvHmd34Matrices[9],arrayToConvHmd34Matrices[10],arrayToConvHmd34Matrices[11],1.0f );
 			Matrix4f tmpMat = new Matrix4f( 
-					arrayToConvHmd34Matrices[0],arrayToConvHmd34Matrices[1],arrayToConvHmd34Matrices[2],0.0f,
-					arrayToConvHmd34Matrices[3],arrayToConvHmd34Matrices[4],arrayToConvHmd34Matrices[5],0.0f,
-					arrayToConvHmd34Matrices[6],arrayToConvHmd34Matrices[7],arrayToConvHmd34Matrices[8],0.0f,
-					arrayToConvHmd34Matrices[9],arrayToConvHmd34Matrices[10],arrayToConvHmd34Matrices[11],1.0f );
+					arrayToConvHmd34Matrices[0],arrayToConvHmd34Matrices[4],arrayToConvHmd34Matrices[8],0.0f,
+					arrayToConvHmd34Matrices[1],arrayToConvHmd34Matrices[5],arrayToConvHmd34Matrices[9],0.0f,
+					arrayToConvHmd34Matrices[2],arrayToConvHmd34Matrices[6],arrayToConvHmd34Matrices[10],0.0f,
+					arrayToConvHmd34Matrices[3],arrayToConvHmd34Matrices[7],arrayToConvHmd34Matrices[11],1.0f );
+			if ( ManagerGLFW.printCoords==true ) Utils.printMatrix4f( "hmdPose",tmpMat );
 			tmpMat.invert( hmdPose );
+			if ( ManagerGLFW.printCoords==true ) Utils.printMatrix4f( "hmdPose-inv",hmdPose );
 		}
 
 //		for ( int ic=0; ic<VR.k_unMaxTrackedDeviceCount; ic++ )
@@ -250,10 +257,14 @@ public class ManagerOpenVR implements AutoCloseable
 		HmdMatrix44 result44 = HmdMatrix44.mallocStack( stack );
 		this.projectionMatrixWitEyeToHeadTransformLeft = specProjectionMatrixM44ToM4f( result44,VR.EVREye_Eye_Left );
 		this.projectionMatrixWitEyeToHeadTransformRight = specProjectionMatrixM44ToM4f( result44,VR.EVREye_Eye_Right );
+		Utils.printMatrix4f( "projmat-left",this.projectionMatrixWitEyeToHeadTransformLeft );
+		Utils.printMatrix4f( "projmat-right",this.projectionMatrixWitEyeToHeadTransformRight );
 
 		HmdMatrix34 result34 = HmdMatrix34.mallocStack( stack );
 		Matrix4f eyeToHeadTransformLeft = specEyeToHeadTransformM34ToM4fInv( result34,VR.EVREye_Eye_Left );
 		Matrix4f eyeToHeadTransformRight = specEyeToHeadTransformM34ToM4fInv( result34,VR.EVREye_Eye_Right );
+		Utils.printMatrix4f( "eyePos-left",eyeToHeadTransformLeft );
+		Utils.printMatrix4f( "eyePos-right",eyeToHeadTransformRight );
 
 		this.projectionMatrixWitEyeToHeadTransformLeft.mul( eyeToHeadTransformLeft );
 		this.projectionMatrixWitEyeToHeadTransformRight.mul( eyeToHeadTransformRight );
@@ -263,22 +274,32 @@ public class ManagerOpenVR implements AutoCloseable
 	{
 		HmdMatrix44 matrix44 = VRSystem.VRSystem_GetProjectionMatrix( indexEye,Renderer.Z_NEAR,Renderer.Z_FAR,result );
 		matrix44.m().get( arrayToConvHmdMatrices );
+//		return new Matrix4f( 
+//				arrayToConvHmdMatrices[0],arrayToConvHmdMatrices[1],arrayToConvHmdMatrices[2],arrayToConvHmdMatrices[3],
+//				arrayToConvHmdMatrices[4],arrayToConvHmdMatrices[5],arrayToConvHmdMatrices[6],arrayToConvHmdMatrices[7],
+//				arrayToConvHmdMatrices[8],arrayToConvHmdMatrices[9],arrayToConvHmdMatrices[10],arrayToConvHmdMatrices[11],
+//				arrayToConvHmdMatrices[12],arrayToConvHmdMatrices[13],arrayToConvHmdMatrices[14],arrayToConvHmdMatrices[15] );
 		return new Matrix4f( 
-				arrayToConvHmdMatrices[0],arrayToConvHmdMatrices[1],arrayToConvHmdMatrices[2],arrayToConvHmdMatrices[3],
-				arrayToConvHmdMatrices[4],arrayToConvHmdMatrices[5],arrayToConvHmdMatrices[6],arrayToConvHmdMatrices[7],
-				arrayToConvHmdMatrices[8],arrayToConvHmdMatrices[9],arrayToConvHmdMatrices[10],arrayToConvHmdMatrices[11],
-				arrayToConvHmdMatrices[12],arrayToConvHmdMatrices[13],arrayToConvHmdMatrices[14],arrayToConvHmdMatrices[15] );
+				arrayToConvHmdMatrices[0],arrayToConvHmdMatrices[4],arrayToConvHmdMatrices[8],arrayToConvHmdMatrices[12],
+				arrayToConvHmdMatrices[1],arrayToConvHmdMatrices[5],arrayToConvHmdMatrices[9],arrayToConvHmdMatrices[13],
+				arrayToConvHmdMatrices[2],arrayToConvHmdMatrices[6],arrayToConvHmdMatrices[10],arrayToConvHmdMatrices[14],
+				arrayToConvHmdMatrices[3],arrayToConvHmdMatrices[7],arrayToConvHmdMatrices[11],arrayToConvHmdMatrices[15] );
 	}
 
 	private Matrix4f specEyeToHeadTransformM34ToM4fInv( HmdMatrix34 result,int indexEye )
 	{
 		HmdMatrix34 matrix34 = VRSystem.VRSystem_GetEyeToHeadTransform( indexEye,result );
 		matrix34.m().get( arrayToConvHmd34Matrices );
+//		Matrix4f tmpMat = new Matrix4f( 
+//				arrayToConvHmd34Matrices[0],arrayToConvHmd34Matrices[1],arrayToConvHmd34Matrices[2],0.0f,
+//				arrayToConvHmd34Matrices[3],arrayToConvHmd34Matrices[4],arrayToConvHmd34Matrices[5],0.0f,
+//				arrayToConvHmd34Matrices[6],arrayToConvHmd34Matrices[7],arrayToConvHmd34Matrices[8],0.0f,
+//				arrayToConvHmd34Matrices[9],arrayToConvHmd34Matrices[10],arrayToConvHmd34Matrices[11],1.0f );
 		Matrix4f tmpMat = new Matrix4f( 
-				arrayToConvHmd34Matrices[0],arrayToConvHmd34Matrices[1],arrayToConvHmd34Matrices[2],0.0f,
-				arrayToConvHmd34Matrices[3],arrayToConvHmd34Matrices[4],arrayToConvHmd34Matrices[5],0.0f,
-				arrayToConvHmd34Matrices[6],arrayToConvHmd34Matrices[7],arrayToConvHmd34Matrices[8],0.0f,
-				arrayToConvHmd34Matrices[9],arrayToConvHmd34Matrices[10],arrayToConvHmd34Matrices[11],1.0f );
+				arrayToConvHmd34Matrices[0],arrayToConvHmd34Matrices[4],arrayToConvHmd34Matrices[8],0.0f,
+				arrayToConvHmd34Matrices[1],arrayToConvHmd34Matrices[5],arrayToConvHmd34Matrices[9],0.0f,
+				arrayToConvHmd34Matrices[2],arrayToConvHmd34Matrices[6],arrayToConvHmd34Matrices[10],0.0f,
+				arrayToConvHmd34Matrices[3],arrayToConvHmd34Matrices[7],arrayToConvHmd34Matrices[11],1.0f );
 		return tmpMat.invert();
 	}
 
@@ -288,7 +309,7 @@ public class ManagerOpenVR implements AutoCloseable
 		leftEyeTexture.eType( VR.ETextureType_TextureType_OpenGL );
 		leftEyeTexture.eColorSpace( VR.EColorSpace_ColorSpace_Gamma );
 
-		rightEyeTexture.handle( fbOsForTwoEyes.getTextureIdEye1() );
+		rightEyeTexture.handle( fbOsForTwoEyes.getTextureIdEye2() );
 		rightEyeTexture.eType( VR.ETextureType_TextureType_OpenGL );
 		rightEyeTexture.eColorSpace( VR.EColorSpace_ColorSpace_Gamma );
 	}
@@ -322,11 +343,13 @@ public class ManagerOpenVR implements AutoCloseable
 	public Matrix4f getAllTransformMatrixEyeLeft()
 	{
 		projectionMatrixWitEyeToHeadTransformLeft.mul( hmdPose,allTransformMatrixLeft );
+		if ( ManagerGLFW.printCoords==true ) Utils.printMatrix4f( "mvp-left",allTransformMatrixLeft );
 		return allTransformMatrixLeft;
 	}
 	public Matrix4f getAllTransformMatrixEyeRight()
 	{
 		projectionMatrixWitEyeToHeadTransformRight.mul( hmdPose,allTransformMatrixRight );
+		if ( ManagerGLFW.printCoords==true ) Utils.printMatrix4f( "mvp-right",allTransformMatrixRight );
 		return allTransformMatrixRight;
 	}
 }
