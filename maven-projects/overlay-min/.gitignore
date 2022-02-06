@@ -1,0 +1,5 @@
+/.apt_generated/
+/target/
+/.factorypath
+lwjgl_openvr.dll
+openvr_api.dll

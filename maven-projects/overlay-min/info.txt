@@ -1,0 +1,12 @@
+﻿20220206:
+	- kiindulok 3 projektből:
+		- saját GitHub\sajat-tests\maven-projects\lwjgl3-test
+		- saját GitHub\sajat-tests\maven-projects\log4j2-test
+		- saját GitHub\htcvive-controller-vjoy\openvr-overlay\
+	- szeretnék egy lwgjl3-as egyszerű overlay-t csinálni
+		- ami két funkciót is tud:
+			- vJoy-al meghajt egy joystick drivert
+			- a chaperone-hoz rögzített kis ikonokat tudnék rögzíteni és ezeket nyomkodva (valahogy) billentyű kombinációkat tudnék generálni
+		- ezzel lehetőségem lenne egy játék (Elite Dangerous) teljes irányítására
+			- akár VR, akár nem
+	- overlay-min: első commit csak a működő sample-ból
