@@ -93,6 +93,11 @@
 			<artifactId>lwjgl-stb</artifactId>
 			<classifier>${lwjgl.natives}</classifier>
 		</dependency>
+		<dependency>
+			<groupId>org.lwjgl</groupId>
+			<artifactId>lwjgl-openvr</artifactId>
+			<version>${lwjgl.version}</version>
+		</dependency>
 	</dependencies>
 <!--
 	<build>
