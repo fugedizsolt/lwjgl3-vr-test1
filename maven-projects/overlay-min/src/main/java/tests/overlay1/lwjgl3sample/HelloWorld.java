@@ -1,4 +1,4 @@
-package tests.overlay1;
+package tests.overlay1.lwjgl3sample;
 
 import java.nio.IntBuffer;
 
