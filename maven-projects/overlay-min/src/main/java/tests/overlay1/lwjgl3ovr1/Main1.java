@@ -8,7 +8,9 @@ import java.nio.file.Paths;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
-import tests.overlay1.lwjgl3only.utils.ManagerGLFW;
+import tests.overlay1.lwjgl3ovr1.utils.ManagerGLFW;
+import tests.overlay1.lwjgl3ovr1.utils.ManagerOpenVR;
+
 
 public class Main1
 {
@@ -39,7 +41,10 @@ public class Main1
 		{
 			try (ManagerGLFW mglfw = new ManagerGLFW( psGLFWError ))
 			{
-				mglfw.loop( pathStop );
+				try (ManagerOpenVR managerOpenVR = new ManagerOpenVR())
+				{
+					mglfw.loop( pathStop,managerOpenVR );
+				}
 			}
 		}
 	}

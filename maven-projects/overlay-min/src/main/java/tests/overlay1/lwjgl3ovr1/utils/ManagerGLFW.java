@@ -27,16 +27,27 @@ import static org.lwjgl.glfw.GLFW.glfwWindowShouldClose;
 import static org.lwjgl.opengl.GL11.GL_COLOR_BUFFER_BIT;
 import static org.lwjgl.opengl.GL11.GL_DEPTH_BUFFER_BIT;
 import static org.lwjgl.opengl.GL11.GL_FALSE;
+import static org.lwjgl.opengl.GL11.GL_NEAREST;
+import static org.lwjgl.opengl.GL11.GL_RGBA;
+import static org.lwjgl.opengl.GL11.GL_TEXTURE_2D;
+import static org.lwjgl.opengl.GL11.GL_TEXTURE_MAG_FILTER;
+import static org.lwjgl.opengl.GL11.GL_TEXTURE_MIN_FILTER;
 import static org.lwjgl.opengl.GL11.GL_TRUE;
+import static org.lwjgl.opengl.GL11.GL_UNSIGNED_BYTE;
+import static org.lwjgl.opengl.GL11.glBindTexture;
 import static org.lwjgl.opengl.GL11.glClear;
 import static org.lwjgl.opengl.GL11.glClearColor;
+import static org.lwjgl.opengl.GL11.glCopyTexImage2D;
 import static org.lwjgl.opengl.GL11.glFinish;
 import static org.lwjgl.opengl.GL11.glFlush;
+import static org.lwjgl.opengl.GL11.glGenTextures;
+import static org.lwjgl.opengl.GL11.glTexImage2D;
+import static org.lwjgl.opengl.GL11.glTexParameteri;
 import static org.lwjgl.system.MemoryUtil.NULL;
 
-import static org.lwjgl.opengl.GL11.*;
-
 import java.io.PrintStream;
+import java.nio.ByteBuffer;
+import java.nio.file.Files;
 import java.nio.file.Path;
 
 import org.lwjgl.glfw.GLFWErrorCallback;
@@ -52,10 +63,11 @@ public class ManagerGLFW implements AutoCloseable
 	private static boolean printCoordsSign = false;
 	public static boolean printCoords = false;
 
-	private static final int WIDTH = 300;
-	private static final int HEIGHT = 300;
+	private static final int WIDTH = 128;
+	private static final int HEIGHT = 128;
 
 	private final long windowHandle;
+	private int ovrTextureId;
 
 
 	public ManagerGLFW( PrintStream psGLFWError )
@@ -125,18 +137,21 @@ public class ManagerGLFW implements AutoCloseable
 
 		// Set the clear color
 		glClearColor( 1.0f,0.0f,0.0f,0.0f );
+
+		this.ovrTextureId = genTexture();
 	}
 
-	public void genTexture()
+	private int genTexture()
 	{
-		int m_nTextureIdEye1 = glGenTextures();
-		glBindTexture( GL_TEXTURE_2D,m_nTextureIdEye1 );
+		int textureId = glGenTextures();
+		glBindTexture( GL_TEXTURE_2D,textureId );
+		glTexImage2D( GL_TEXTURE_2D,0,GL_RGBA,WIDTH,HEIGHT,0,GL_RGBA,GL_UNSIGNED_BYTE,(ByteBuffer)null );
 		glTexParameteri( GL_TEXTURE_2D,GL_TEXTURE_MIN_FILTER,GL_NEAREST ); // we also want to sample this texture later
 		glTexParameteri( GL_TEXTURE_2D,GL_TEXTURE_MAG_FILTER,GL_NEAREST ); // we also want to sample this texture later
-		glTexImage2D( GL_TEXTURE_2D,0,GL_RGBA,WIDTH,HEIGHT,0,GL_RGBA,GL_UNSIGNED_BYTE,myjunkdata );
+		return textureId;
 	}
 
-	public void loop( Path pathStop ) throws InterruptedException
+	public void loop( Path pathStop,ManagerOpenVR managerOpenVR ) throws InterruptedException
 	{
 		float countFrames = 0;
 		long tsStart = System.currentTimeMillis();
@@ -144,8 +159,8 @@ public class ManagerGLFW implements AutoCloseable
 		// the window or has pressed the ESCAPE key.
 		while ( !glfwWindowShouldClose( windowHandle ) )
 		{
-//			if ( Files.exists( pathStop )==true )
-//				break;
+			if ( Files.exists( pathStop )==true )
+				break;
 
 			glClear( GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT ); // clear the framebuffer
 
@@ -165,6 +180,17 @@ public class ManagerGLFW implements AutoCloseable
 			// invoked during this call.
 			printCoords = false;
 			glfwPollEvents();
+
+			// Bind the texture we will be sending to OpenVR.
+			glBindTexture( GL_TEXTURE_2D,this.ovrTextureId );
+
+			// Copy the current framebuffer into that texture.
+			glCopyTexImage2D( GL_TEXTURE_2D, 0, GL_RGBA, 0, 0, WIDTH, HEIGHT, 0 );
+
+			// this.ovrTextureId
+			managerOpenVR.setOverlayTexture( this.ovrTextureId );
+
+			Thread.sleep( 50 );
 		}
 		long tsDiff = System.currentTimeMillis()-tsStart;
 		Main1.log( String.format( "fps=%f (countFrames=%f)(tsDiff=%d)",1000*countFrames/tsDiff,countFrames,tsDiff ) );

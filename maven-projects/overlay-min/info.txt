@@ -16,3 +16,13 @@
 			- "One hour. Two ways. C in Windows. OpenVR overlays from scratch."
 				- https://www.youtube.com/watch?v=r6kM3tR03g4
 		- 34:32-nél tartok kb
+
+20220207:
+	- elvileg kész is az lwjgl3 kód, már látszani kellene az overlay texture-nek
+		- a ManagerOpenVR.setOverlayTexture-nél talán egyszer kellene csak meghívni ezt az fgv-t, mert nem változik az opengl textureId
+		- talán sima malloc-al kellene meghívni, nem stack-en, hanem heap-en foglalt memóval
+		- meg kellene nézni, mihez lehet rögzíteni az overlay-t, láthatóan a controller-hez már lehet :)
+	- glfw + openvr samples:
+		- http://forum.lwjgl.org/index.php?topic=6726.0
+		- https://gist.github.com/VirtuosoChris/272f803966e62796b83dce2a597adcc7
+			- letöltve: maven-projects\overlay-min\data\HelloOpenVR_GLFW.cpp

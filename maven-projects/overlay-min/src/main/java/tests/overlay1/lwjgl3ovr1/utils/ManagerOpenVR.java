@@ -4,9 +4,9 @@ import java.nio.IntBuffer;
 import java.nio.LongBuffer;
 
 import org.lwjgl.openvr.OpenVR;
+import org.lwjgl.openvr.Texture;
 import org.lwjgl.openvr.VR;
 import org.lwjgl.openvr.VREvent;
-import org.lwjgl.openvr.VRInput;
 import org.lwjgl.openvr.VROverlay;
 import org.lwjgl.openvr.VRSystem;
 import org.lwjgl.openvr.VRTextureBounds;
@@ -150,5 +150,25 @@ public class ManagerOpenVR implements AutoCloseable
 	public int getOpenVRtoken()
 	{
 		return openVRtoken;
+	}
+
+	public void setOverlayTexture( int paramGLTextureId )
+	{
+//		// Setup a Texture_t object to send in the texture.
+//		struct Texture_t tex;
+//		tex.eColorSpace = EColorSpace_ColorSpace_Auto;
+//		tex.eType = ETextureType_TextureType_OpenGL;
+//		tex.handle = (void*)(intptr_t)overlaytexture;
+//
+//		// Send texture into OpenVR as the overlay.
+//		oOverlay->SetOverlayTexture( overlayID, &tex );
+
+		try ( MemoryStack stack = MemoryStack.stackPush() )
+		{
+			Texture ovrTextureId = Texture.malloc( stack );
+			ovrTextureId.set( paramGLTextureId,VR.ETextureType_TextureType_OpenGL,VR.EColorSpace_ColorSpace_Auto );
+			this.vrrc = VROverlay.VROverlay_SetOverlayTexture( this.lHandleOverlay,ovrTextureId );
+//			Main1.log( "VROverlay_SetOverlayTexture rc=%d",vrrc );
+		}
 	}
 }
