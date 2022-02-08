@@ -42,6 +42,7 @@ import org.lwjgl.glfw.GLFWKeyCallback;
 import org.lwjgl.glfw.GLFWKeyCallbackI;
 import org.lwjgl.glfw.GLFWVidMode;
 import org.lwjgl.opengl.GL;
+import org.lwjgl.opengl.GL11;
 
 import tests.overlay1.lwjgl3only.Main1;
 
@@ -140,6 +141,13 @@ public class ManagerGLFW implements AutoCloseable
 
 			countFrames += 1.0f;
 
+//			GL11.glColor3f( 0,0,0 );
+			GL11.glColor3f( 1,1,1 );
+			GL11.glBegin( GL11.GL_LINES );
+			GL11.glVertex2f( 0f,0f );
+			GL11.glVertex2f( 0.5f,0.5f );
+			GL11.glEnd();
+
 //			glFinish();
 //			Thread.sleep( 1 );
 
@@ -154,6 +162,7 @@ public class ManagerGLFW implements AutoCloseable
 			// invoked during this call.
 			printCoords = false;
 			glfwPollEvents();
+			Thread.sleep( 50 );
 		}
 		long tsDiff = System.currentTimeMillis()-tsStart;
 		Main1.log( String.format( "fps=%f (countFrames=%f)(tsDiff=%d)",1000*countFrames/tsDiff,countFrames,tsDiff ) );

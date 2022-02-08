@@ -55,6 +55,7 @@ import org.lwjgl.glfw.GLFWKeyCallback;
 import org.lwjgl.glfw.GLFWKeyCallbackI;
 import org.lwjgl.glfw.GLFWVidMode;
 import org.lwjgl.opengl.GL;
+import org.lwjgl.opengl.GL11;
 
 import tests.overlay1.lwjgl3only.Main1;
 
@@ -166,6 +167,12 @@ public class ManagerGLFW implements AutoCloseable
 
 			countFrames += 1.0f;
 
+			GL11.glColor3f( 1,1,1 );
+			GL11.glBegin( GL11.GL_LINES );
+			GL11.glVertex2f( 0f,0f );
+			GL11.glVertex2f( 0.5f,0.5f );
+			GL11.glEnd();
+
 //			glFinish();
 //			Thread.sleep( 1 );
 
@@ -189,6 +196,7 @@ public class ManagerGLFW implements AutoCloseable
 
 			// this.ovrTextureId
 			managerOpenVR.setOverlayTexture( this.ovrTextureId );
+			managerOpenVR.pollEvents();
 
 			Thread.sleep( 50 );
 		}
@@ -199,6 +207,11 @@ public class ManagerGLFW implements AutoCloseable
 	@Override
 	public void close() throws Exception
 	{
+		Main1.log( String.format( "GLFW close() called" ) );
+
+		// memory leak miatt
+//		GL.createCapabilities( null );
+
 		// Release window and window callbacks
 		glfwFreeCallbacks( windowHandle );
 		glfwDestroyWindow( windowHandle );

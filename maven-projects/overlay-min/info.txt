@@ -26,3 +26,14 @@
 		- http://forum.lwjgl.org/index.php?topic=6726.0
 		- https://gist.github.com/VirtuosoChris/272f803966e62796b83dce2a597adcc7
 			- letöltve: maven-projects\overlay-min\data\HelloOpenVR_GLFW.cpp
+
+20220208:
+	- fordul, elindul, de nem látszik az overlay
+	- NA, fordul, elindul, és a fix id=4 indexű VR device (controller) relatív kiír egy vonalat
+		- szépen látom az lwjgl3 debug üzeneteket
+			- sajnos a prg-ben még van egy memory leak, de nem értem... pedig meghívom a "GL.createCapabilities( null );"-t
+		- a steamVR console-ról látszott, hogy application_scene-t hoztam létre overlay helyett
+	- rengeteg munka van még...
+		- a HmdMatrix34 beállítása...
+		- absolut pozíció beállítása az overlay-nek
+		- a clear color után abszolút transparens volt az overlay, amíg nem írtam vonalat, semmi sem látszott...

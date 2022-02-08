@@ -3,6 +3,7 @@ package tests.overlay1.lwjgl3ovr1.utils;
 import java.nio.IntBuffer;
 import java.nio.LongBuffer;
 
+import org.lwjgl.openvr.HmdMatrix34;
 import org.lwjgl.openvr.OpenVR;
 import org.lwjgl.openvr.Texture;
 import org.lwjgl.openvr.VR;
@@ -22,6 +23,7 @@ public class ManagerOpenVR implements AutoCloseable
 	private final VREvent event;
 	private int vrrc;				// return code from VR func
 	private long lHandleOverlay;	// handle from VR func
+	private boolean bAssoc = false;
 
 	private final LongBuffer pHandleOverlay = MemoryUtil.memAllocLong( 1 );
 
@@ -65,7 +67,7 @@ public class ManagerOpenVR implements AutoCloseable
 		int token = 0;
 		try
 		{
-			token = VR.VR_InitInternal( peError,VR.EVRApplicationType_VRApplication_Scene );
+			token = VR.VR_InitInternal( peError,VR.EVRApplicationType_VRApplication_Overlay );
 			int rc = peError.get( 0 );
 			if ( rc!=0 )
 			{
@@ -101,9 +103,9 @@ public class ManagerOpenVR implements AutoCloseable
 			{
 				int trackedDeviceClass = VRSystem.VRSystem_GetTrackedDeviceClass( ic );
 				Main1.log( "id=%d,trackedDeviceClass=%d",ic,trackedDeviceClass );
-				Main1.log( "TrackingSystemName(%s)",VRSystem.VRSystem_GetStringTrackedDeviceProperty( ic,VR.ETrackedDeviceProperty_Prop_TrackingSystemName_String,peError ) );
-				Main1.log( "ModeLabel(%s)",VRSystem.VRSystem_GetStringTrackedDeviceProperty( ic,VR.ETrackedDeviceProperty_Prop_ModeLabel_String,peError ) );
-				Main1.log( "ModelNumber(%s)",VRSystem.VRSystem_GetStringTrackedDeviceProperty( ic,VR.ETrackedDeviceProperty_Prop_ModelNumber_String,peError ) );
+				Main1.log( "\tTrackingSystemName(%s)",VRSystem.VRSystem_GetStringTrackedDeviceProperty( ic,VR.ETrackedDeviceProperty_Prop_TrackingSystemName_String,peError ) );
+				Main1.log( "\tModeLabel(%s)",VRSystem.VRSystem_GetStringTrackedDeviceProperty( ic,VR.ETrackedDeviceProperty_Prop_ModeLabel_String,peError ) );
+				Main1.log( "\tModelNumber(%s)",VRSystem.VRSystem_GetStringTrackedDeviceProperty( ic,VR.ETrackedDeviceProperty_Prop_ModelNumber_String,peError ) );
 
 				if ( trackedDeviceClass==VR.ETrackedDeviceClass_TrackedDeviceClass_TrackingReference )
 					countBaseStations++;
@@ -140,6 +142,8 @@ public class ManagerOpenVR implements AutoCloseable
 			Main1.log( "calling VR_ShutdownInternal..." );
 			VR.VR_ShutdownInternal();
 			Main1.log( "VR_ShutdownInternal...end" );
+
+			MemoryUtil.memFree( pHandleOverlay );
 		}
 		catch ( Exception exc )
 		{
@@ -168,7 +172,27 @@ public class ManagerOpenVR implements AutoCloseable
 			Texture ovrTextureId = Texture.malloc( stack );
 			ovrTextureId.set( paramGLTextureId,VR.ETextureType_TextureType_OpenGL,VR.EColorSpace_ColorSpace_Auto );
 			this.vrrc = VROverlay.VROverlay_SetOverlayTexture( this.lHandleOverlay,ovrTextureId );
-//			Main1.log( "VROverlay_SetOverlayTexture rc=%d",vrrc );
+
+			if ( bAssoc==false )
+			{
+				bAssoc = true;
+
+				Main1.log( "VROverlay_SetOverlayTexture rc=%d",vrrc );
+
+//				int eTrackingOrigin = VR.ETrackingUniverseOrigin_TrackingUniverseSeated;
+//				HmdMatrix34 pmatTrackingOriginToOverlayTransform = HmdMatrix34.calloc( stack );
+//				pmatTrackingOriginToOverlayTransform.m( 0,1 );
+//				pmatTrackingOriginToOverlayTransform.m( 5,1 );
+//				pmatTrackingOriginToOverlayTransform.m( 10,1 );
+//				this.vrrc = VROverlay.VROverlay_SetOverlayTransformAbsolute( this.lHandleOverlay,eTrackingOrigin,pmatTrackingOriginToOverlayTransform );
+
+				HmdMatrix34 pmatTrackedDeviceToOverlayTransform = HmdMatrix34.calloc( stack );
+				pmatTrackedDeviceToOverlayTransform.m( 0,1 );
+				pmatTrackedDeviceToOverlayTransform.m( 5,1 );
+				pmatTrackedDeviceToOverlayTransform.m( 10,1 );
+				int vrDeviceIndex = 4;
+				this.vrrc = VROverlay.VROverlay_SetOverlayTransformTrackedDeviceRelative( this.lHandleOverlay,vrDeviceIndex,pmatTrackedDeviceToOverlayTransform );
+			}
 		}
 	}
 }
