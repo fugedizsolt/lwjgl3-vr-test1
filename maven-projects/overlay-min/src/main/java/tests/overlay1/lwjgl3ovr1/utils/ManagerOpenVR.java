@@ -190,7 +190,7 @@ public class ManagerOpenVR implements AutoCloseable
 				pmatTrackedDeviceToOverlayTransform.m( 0,1 );
 				pmatTrackedDeviceToOverlayTransform.m( 5,1 );
 				pmatTrackedDeviceToOverlayTransform.m( 10,1 );
-				int vrDeviceIndex = 4;
+				int vrDeviceIndex = 3;
 				this.vrrc = VROverlay.VROverlay_SetOverlayTransformTrackedDeviceRelative( this.lHandleOverlay,vrDeviceIndex,pmatTrackedDeviceToOverlayTransform );
 			}
 		}

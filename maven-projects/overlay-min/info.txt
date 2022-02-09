@@ -37,3 +37,8 @@
 		- a HmdMatrix34 beállítása...
 		- absolut pozíció beállítása az overlay-nek
 		- a clear color után abszolút transparens volt az overlay, amíg nem írtam vonalat, semmi sem látszott...
+	- elképesztő hibám volt:
+		- ezt hívtam "GL.createCapabilities( null );"
+		- ehelyett: "GL.setCapabilities( null );"
+		- ezt kb 2 órán keresztül debuggoltam... FUCK!!!
+

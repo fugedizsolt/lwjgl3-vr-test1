@@ -29,4 +29,7 @@ rem mvn exec:java -Dexec.mainClass="testvr02.HelloOpenVR" -Dexec.args=" "
 rem mvn exec:java -Dexec.mainClass="HelloWorld"
 rem mvn -X exec:java -Dorg.lwjgl.util.Debug=true -Dexec.mainClass="tests.overlay1.lwjgl3ovr1.Main1" -Dexec.args=-javaagent:lwjglx-debug-1.0.0.jar > aa1
 
-D:\Java64bit\jdk1.8.0_191\bin\java -javaagent:D:/tmp/lwjgl3-debug/lwjglx-debug-1.0.0.jar -Dorg.lwjgl.util.Debug=true tests.overlay1.lwjgl3ovr1.Main1 > aa1
+rem D:\Java64bit\jdk1.8.0_191\bin\java -javaagent:D:/tmp/lwjgl3-debug/lwjglx-debug-1.0.0.jar -Dorg.lwjglx.OUTPUT=lwjglx.log -Dorg.lwjgl.util.Debug=true tests.overlay1.lwjgl3only.Main1
+
+D:\Java64bit\jdk1.8.0_191\bin\java -javaagent:D:/tmp/lwjgl3-debug/lwjglx-debug-1.0.0.jar -Dorg.lwjglx.OUTPUT=lwjglx.log -Dorg.lwjgl.util.Debug=true tests.overlay1.lwjgl3ovr1.Main1
+

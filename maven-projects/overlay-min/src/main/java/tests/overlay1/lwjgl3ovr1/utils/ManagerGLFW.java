@@ -194,9 +194,11 @@ public class ManagerGLFW implements AutoCloseable
 			// Copy the current framebuffer into that texture.
 			glCopyTexImage2D( GL_TEXTURE_2D, 0, GL_RGBA, 0, 0, WIDTH, HEIGHT, 0 );
 
-			// this.ovrTextureId
-			managerOpenVR.setOverlayTexture( this.ovrTextureId );
-			managerOpenVR.pollEvents();
+			if ( managerOpenVR!=null )
+			{
+				managerOpenVR.setOverlayTexture( this.ovrTextureId );
+				managerOpenVR.pollEvents();
+			}
 
 			Thread.sleep( 50 );
 		}
@@ -209,9 +211,6 @@ public class ManagerGLFW implements AutoCloseable
 	{
 		Main1.log( String.format( "GLFW close() called" ) );
 
-		// memory leak miatt
-//		GL.createCapabilities( null );
-
 		// Release window and window callbacks
 		glfwFreeCallbacks( windowHandle );
 		glfwDestroyWindow( windowHandle );
@@ -219,5 +218,8 @@ public class ManagerGLFW implements AutoCloseable
 		// Terminate GLFW and release the GLFWerrorfun
 		glfwTerminate();
 		glfwSetErrorCallback( null ).free();
+
+		// memory leak miatt
+		GL.setCapabilities( null );
 	}
 }

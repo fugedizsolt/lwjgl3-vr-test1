@@ -178,5 +178,8 @@ public class ManagerGLFW implements AutoCloseable
 		// Terminate GLFW and release the GLFWerrorfun
 		glfwTerminate();
 		glfwSetErrorCallback( null ).free();
+
+		// memory leak miatt
+		GL.setCapabilities( null );
 	}
 }
