@@ -42,3 +42,8 @@
 		- ehelyett: "GL.setCapabilities( null );"
 		- ezt kb 2 órán keresztül debuggoltam... FUCK!!!
 
+
+20220218:
+	- https://learnopengl.com/Introduction
+	- multiple-opengl-contexts
+		- https://stackoverflow.com/questions/29617370/multiple-opengl-contexts-multiple-windows-multithreading-and-vsync
