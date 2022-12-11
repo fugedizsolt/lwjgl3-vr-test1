@@ -72,3 +72,11 @@
 			- Assets\Scripts\OverlayController.cs
 		- sok segítség a használathoz itt:
 			- Assets\SteamVR\Scripts\SteamVR*.cs
+
+20221211:
+	- leporoltam a projektet
+	- letöltöttem az lwjgl3-debug jar-t innen:
+		- https://github.com/LWJGLX/debug
+	- beállítottam a jó path-t a lwjgl3-debug jar-hoz és működött
+		- megjelent a HMD-be nézve az egyik controller-en egy vonal overlay :)
+
