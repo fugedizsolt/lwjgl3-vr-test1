@@ -47,3 +47,28 @@
 	- https://learnopengl.com/Introduction
 	- multiple-opengl-contexts
 		- https://stackoverflow.com/questions/29617370/multiple-opengl-contexts-multiple-windows-multithreading-and-vsync
+
+20221210:
+	- újra felveszem a fonalat, tovább folytatom a Java-s prg-t
+	- openvr overlay background process?
+		- https://www.reddit.com/r/SteamVR/comments/dtmfbt/openvr_overlay_sample_application/
+		- https://github.com/ValveSoftware/openvr/wiki/API-Documentation
+		- https://github.com/ValveSoftware/openvr/wiki/IVROverlay_Overview
+	- a doksiban ez van:
+		- Another kind of application is called OpenVR Overlay. This application calls the OpenVR API to draw 2D image at arbitrary 3D coordinate on top of any game. Player can interact with the overlay using the controller buttons.
+	- nem értem egyenlőre a folyamatot:
+		- a CNLohr videoban nincs jele annak, hogy két szemre külön renderelés van... csak "ShowOverlay"
+	- több overlay lehet, de a SetOverlayInputMethod-al csak mouse or none lehet...
+		typedef enum VROverlayInputMethod
+		{
+			VROverlayInputMethod_None = 0,
+			VROverlayInputMethod_Mouse = 1,
+		} VROverlayInputMethod;
+	- emiatt nem érkezik meg a kontrollerek állapota... csak vp_application-nek, amiből csak 1 lehet...
+	- de az Elite Dangerous-hoz mégiscsak megcsinálták valahogy...
+		- https://github.com/dantman/elite-vr-cockpit
+			- letöltve sokat lehet tanulni ebből...
+		- a kódban úgy látom, hogy ez valahogy overlay...
+			- Assets\Scripts\OverlayController.cs
+		- sok segítség a használathoz itt:
+			- Assets\SteamVR\Scripts\SteamVR*.cs
